@@ -3,258 +3,714 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>인건비 예측 계산기</title>
+  <title>네트급여 계산기</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#f3f4f6}
-    .card{background:#fff;border:1px solid #e5e7eb;border-radius:1rem;}
-    .tbl{border-collapse:collapse;width:100%;font-size:14px}
-    .tbl th,.tbl td{border:1px solid #e5e7eb;padding:8px 10px;text-align:right;white-space:nowrap}
-    .tbl th{background:#f9fafb;text-align:center}
-    .tone{background:#fffbcc}
-    .lbl{color:#4b5563;font-weight:600}
-    .input{width:100%;border:1px solid #d1d5db;border-radius:.5rem;padding:.5rem .75rem;text-align:right;outline:none}
-    .input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.2)}
-    .hint{font-size:11px;color:#6b7280}
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background:#f3f4f6 }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
+    .tone { background:#fef9c3 } /* 노란 톤 */
   </style>
 </head>
-<body class="p-4 sm:p-6 flex items-start justify-center min-h-screen">
-  <main class="w-full max-w-[1280px] xl:max-w-[1400px] space-y-4">
-    <section class="card p-5">
+<body class="p-4 sm:p-6 flex items-center justify-center min-h-screen">
+
+  <!-- 메인 컨테이너 (최대폭만 유지) -->
+  <main class="w-full max-w-[1280px] xl:max-w-[1400px]">
+
+    <!-- 상단: 제목 카드 + Ver 2.0 (디자인 동일) -->
+    <section class="card p-5 sm:p-7 mb-4">
       <div class="flex items-center justify-between gap-3">
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">인건비 예측</h1>
-        <button id="open_rules" class="text-blue-600 underline font-semibold">계산 규칙</button>
-      </div>
-      <p class="mt-2 text-sm text-gray-600">실수령액 기준으로 지급총액(기본급+비과세)을 역산합니다.</p>
-    </section>
-
-    <!-- 입력 영역 -->
-    <section class="card p-5">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="lbl block mb-1">실수령액(월)</label>
-          <input id="net_pay" type="text" inputmode="numeric" class="input" placeholder="예: 3,000,000">
-        </div>
-        <div>
-          <label class="lbl block mb-1">비과세(식대 등)</label>
-          <input id="nontax" type="text" inputmode="numeric" class="input" placeholder="예: 200,000">
-        </div>
-      </div>
-      <div class="mt-4 flex items-center gap-2">
-        <button id="calc_btn" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed" disabled>계산</button>
-        <span id="table_status" class="hint">세액표 불러오는 중…</span>
+        <h1 class="text-3xl sm:text-[2rem] font-extrabold leading-tight text-gray-900">네트급여 계산기</h1>
+        <button id="ver_btn" type="button" class="text-blue-600 font-semibold hover:text-blue-800 underline">Ver 2.0</button>
       </div>
     </section>
 
-    <!-- 결과 영역 -->
-    <section id="result_card" class="card p-5 hidden">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <!-- 좌: 지급내역(월) -->
-        <div>
-          <h3 class="text-lg font-bold text-gray-800 mb-2">지급내역 (월)</h3>
-          <table class="tbl">
-            <tbody>
-              <tr><td style="text-align:left">기본급(과세)</td><td id="p_base"></td></tr>
-              <tr><td style="text-align:left">비과세(식대 등)</td><td id="p_nontax"></td></tr>
-              <tr class="tone"><td style="text-align:left;font-weight:700">지급총액</td><td id="p_total" style="font-weight:700"></td></tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- ✅ 상단 배너 4개 -->
+    <div class="px-4 sm:px-5 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- 배너 1 -->
+        <a href="https://www.kdrcash.kr/" target="_blank" rel="noopener noreferrer" class="block group">
+          <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EB%B3%91%EC%9D%98%EC%9B%90%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B6%84%EC%84%9D%20%ED%94%8C%EB%9E%AB%ED%8F%BC%20%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C.png?raw=true"
+                 alt="닥터캐시"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+          </div>
+        </a>
+        <!-- 배너 2 -->
+        <a href="https://www.kdrcash.kr/" target="_blank" rel="noopener noreferrer" class="block group">
+          <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EB%B3%91%EC%9D%98%EC%9B%90%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B6%84%EC%84%9D%20%ED%94%8C%EB%9E%AB%ED%8F%BC%20%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C.png?raw=true"
+                 alt="닥터캐시"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+          </div>
+        </a>
+        <!-- 배너 3 -->
+        <a href="https://www.kdrcash.kr/download" target="_blank" rel="noopener noreferrer" class="block group">
+          <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true"
+                 alt="다운로드"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+          </div>
+        </a>
+        <!-- 배너 4 -->
+        <a href="https://www.kdrcash.kr/survey" target="_blank" rel="noopener noreferrer" class="block group">
+          <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true"
+                 alt="개원 필수자료 모음"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+          </div>
+        </a>
+      </div>
+    </div>
 
-        <!-- 중: 공제내역(월) -->
-        <div>
-          <h3 class="text-lg font-bold text-gray-800 mb-2">공제내역 (월)</h3>
-          <table class="tbl">
-            <tbody>
-              <tr><td style="text-align:left">국민연금</td><td id="d_np"></td></tr>
-              <tr><td style="text-align:left">건강보험</td><td id="d_hi"></td></tr>
-              <tr><td style="text-align:left">장기요양</td><td id="d_ltc"></td></tr>
-              <tr><td style="text-align:left">고용보험</td><td id="d_ei"></td></tr>
-              <tr><td style="text-align:left">소득세</td><td id="d_itx"></td></tr>
-              <tr><td style="text-align:left">지방소득세</td><td id="d_ltx"></td></tr>
-              <tr class="tone"><td style="text-align:left;font-weight:700">공제총액</td><td id="d_total" style="font-weight:700"></td></tr>
-            </tbody>
-          </table>
-        </div>
+    <!-- 본문 카드: 탭 + 콘텐츠 -->
+    <section class="card p-6">
+      <!-- 탭 버튼 -->
+      <div class="flex items-center justify-center gap-4 mb-4 border-b pb-2">
+        <button id="tab_single" type="button"
+          class="px-4 py-2 text-sm font-semibold border-b-2 transition-colors
+                 text-blue-600 font-bold border-blue-600 hover:text-blue-700">단일</button>
+        <button id="tab_multi" type="button"
+          class="px-4 py-2 text-sm font-semibold border-b-2 transition-colors
+                 text-gray-500 border-transparent hover:text-blue-600">다중</button>
+        <span class="ml-auto text-xs text-gray-500"></span>
+      </div>
 
-        <!-- 우: 실수령액 -->
-        <div>
-          <h3 class="text-lg font-bold text-gray-800 mb-2">실수령액</h3>
-          <div class="text-2xl font-bold text-blue-600" id="net_take"></div>
+      <!-- 단일 컨텐츠 -->
+      <div id="content_single">
+        <div class="bg-white rounded-2xl p-6 md:p-8 border">
+          <!-- 입력 -->
+          <div class="mb-3">
+            <label class="block text-gray-700 font-semibold mb-2">실수령액 (원)</label>
+            <input id="net_pay" type="text" inputmode="numeric"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="예: 11,350,000">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-gray-700 font-semibold mb-2">비과세 합계(월) — 식대/자가운전 등 (원)</label>
+            <input id="nontax" type="text" inputmode="numeric"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                   placeholder="예: 200,000 (없으면 0)">
+            <p id="table_status" class="text-[11px] text-gray-400 mt-1">세액표 불러오는 중…</p>
+          </div>
+
+          <button id="calc_btn"
+                  class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>계산하기</button>
+
+          <!-- 결과 -->
+          <div id="result" class="bg-gray-50 rounded-lg p-6 hidden">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">계산 결과</h2>
+
+            <!-- 지급총액 / 공제액 합계 -->
+            <div class="grid grid-cols-2 gap-2 text-sm">
+              <div class="bg-white rounded-lg border p-3">
+                <div class="text-gray-600">지급총액</div>
+                <div id="gross_pay_result" class="font-semibold text-gray-900 mt-1"></div>
+              </div>
+              <div class="bg-white rounded-lg border p-3">
+                <div class="text-gray-600">공제액 합계</div>
+                <div id="deductions_total_result" class="font-semibold text-gray-900 mt-1"></div>
+              </div>
+            </div>
+
+            <!-- 연봉 카드 -->
+            <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+              <div class="bg-white rounded-lg border p-3">
+                <div class="text-gray-700 font-medium">연봉(퇴직금 제외)</div>
+                <div id="annual_excl" class="font-semibold text-gray-900 mt-1"></div>
+                <div class="text-[11px] text-gray-500 mt-1">(= 지급총액 × 12)</div>
+              </div>
+              <div class="bg-white rounded-lg border p-3">
+                <div class="text-gray-700 font-medium">연봉(퇴직금 포함)</div>
+                <div id="annual_incl" class="font-semibold text-gray-900 mt-1"></div>
+                <div class="text:[11px] text-gray-500 mt-1">(= 지급총액 × 13)</div>
+              </div>
+            </div>
+
+            <!-- 총부담액 카드 + % -->
+            <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+              <div class="bg-white rounded-lg border p-3">
+                <div class="text-gray-700 font-medium">총부담액(퇴직금 제외)</div>
+                <div id="total_burden_excl" class="font-semibold text-gray-900 mt-1"></div>
+                <div class="text-[11px] text-gray-500 mt-1">실수령액 대비 <span id="total_burden_excl_pct"></span></div>
+              </div>
+              <div class="bg-white rounded-lg border p-3">
+                <div class="text-gray-700 font-medium">총부담액(퇴직금 포함)</div>
+                <div id="total_burden_incl" class="font-semibold text-gray-900 mt-1"></div>
+                <div class="text-[11px] text-gray-500 mt-1">실수령액 대비 <span id="total_burden_incl_pct"></span></div>
+              </div>
+            </div>
+
+            <!-- 수식형 요약 -->
+            <div class="mt-6 space-y-1 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-700">+ 4대보험 총액(근로자+사업주)</span>
+                <span id="social_total_summary" class="font-semibold text-gray-900"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">+ 원천세 총액(소득세+지방소득세)</span>
+                <span id="withholding_total_summary" class="font-semibold text-gray-900"></span>
+              </div>
+              <div class="border-t border-gray-300 my-1"></div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">= 부대비용 총액(퇴직금 제외)</span>
+                <span id="overhead_excl_gratuity" class="font-semibold text-gray-900"></span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">+ 퇴직금 (지급총액의 1/12)</span>
+                <span id="gratuity_summary" class="font-semibold text-gray-900"></span>
+              </div>
+              <div class="border-t border-gray-300 my-1"></div>
+              <div class="flex justify-between">
+                <span class="text-gray-700">= 부대비용 총액(퇴직금 포함)</span>
+                <span id="overhead_incl_gratuity" class="font-semibold text-gray-900"></span>
+              </div>
+            </div>
+
+            <!-- 세부 공제 내역 -->
+            <div class="mt-6">
+              <h3 class="text-lg font-bold text-gray-700 mb-2">세부 공제 내역</h3>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li class="flex justify-between"><span>국민연금 (4.5%)</span><span id="np_deduction"></span></li>
+                <li class="flex justify-between"><span>건강보험 (3.545%)</span><span id="hi_deduction"></span></li>
+                <li class="flex justify-between"><span>장기요양 (건보료의 12.95%)</span><span id="ltc_deduction"></span></li>
+                <li class="flex justify-between"><span>고용보험 (0.9%)</span><span id="ei_deduction"></span></li>
+                <li class="flex justify-between"><span>소득세 (간이세액표)</span><span id="tax_deduction"></span></li>
+                <li class="flex justify-between"><span>지방소득세 (10%)</span><span id="local_tax_deduction"></span></li>
+              </ul>
+
+              <!-- 사업주 부담분(세부) -->
+              <div class="mt-6 border-t pt-4">
+                <h4 class="text-base font-bold text-gray-700 mb-2">사업주 부담분</h4>
+                <ul class="text-sm text-gray-600 space-y-1">
+                  <li class="flex justify-between"><span>국민연금 (4.5%)</span><span id="np_er"></span></li>
+                  <li class="flex justify-between"><span>건강보험 (3.545%)</span><span id="hi_er"></span></li>
+                  <li class="flex justify-between"><span>장기요양 (건보료의 12.95%)</span><span id="ltc_er"></span></li>
+                  <li class="flex justify-between"><span>고용보험 (1.15%)</span><span id="ei_er"></span></li>
+                  <li class="flex justify-between"><span>산재보험 (0.72%)</span><span id="wci_er"></span></li>
+                  <li class="flex justify-between font-semibold pt-1"><span>4대보험 사업주 부담분</span><span id="er_total"></span></li>
+                </ul>
+
+                <details class="mt-4 text-[11px] text-gray-500">
+                  <summary class="cursor-pointer">기준 금액(보수월액/세액표 기준) 보기</summary>
+                  <div class="mt-2 space-y-1">
+                    <div class="flex justify-between"><span>보수월액(비과세 제외)</span><span id="base_ins"></span></div>
+                    <div class="flex justify-between"><span>국민연금 기준소득(천원단위·상·하한)</span><span id="base_np"></span></div>
+                    <div class="flex justify-between"><span>건강보험 산정기준(상·하한)</span><span id="base_hi"></span></div>
+                    <div class="flex justify-between"><span>고용보험 산정기준</span><span id="base_ei"></span></div>
+                    <div class="flex justify-between"><span>간이세액표 기준금액</span><span id="base_tax"></span></div>
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            <!-- ✅ 세금계산내역(연간) -->
+            <div class="mt-8">
+              <h3 class="text-lg font-bold text-gray-800 mb-3">세금계산내역 (연간)</h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-[520px] w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                  <colgroup>
+                    <col class="w-40">
+                    <col>
+                  </colgroup>
+                  <thead class="bg-gray-50 text-gray-700">
+                    <tr>
+                      <th class="p-2 border-b text-center">구분</th>
+                      <th class="p-2 border-b text-right">금액</th>
+                    </tr>
+                  </thead>
+                  <tbody id="annual_tax_detail" class="bg-white text-gray-800">
+                    <!-- JS 렌더링 -->
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-2">※ 현재 표는 제공하신 연간 수치(예시)를 표시합니다. 요청 시 계산 로직과 연동 가능합니다.</p>
+            </div>
+
+          </div>
+
+          <!-- 에러 메시지 -->
+          <div id="error_message" class="text-center text-red-500 mt-4 hidden">유효한 금액을 입력해 주세요.</div>
+        </div>
+      </div>
+
+      <!-- 다중 컨텐츠 -->
+      <div id="content_multi" class="hidden">
+        <div class="bg-white rounded-2xl p-6 md:p-8 border">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm text-gray-600">여러 개의 실수령액/비과세 금액을 입력하여 요약 결과를 한 번에 확인하세요.</div>
+            <div class="flex gap-2">
+              <button id="add_row" class="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg border">+ 행 추가</button>
+              <button id="calc_multi" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">다중 계산</button>
+            </div>
+          </div>
+
+          <!-- 입력 행 컨테이너 -->
+          <div id="multi_inputs" class="space-y-2"></div>
+
+          <!-- 결과 표 -->
+          <div class="overflow-x-auto xl:overflow-visible mt-4">
+            <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden min-w-[1100px] xl:min-w-0">
+              <thead class="bg-gray-50 text-gray-700">
+                <tr>
+                  <th class="p-2 border-b text-right whitespace-nowrap">실수령액</th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">비과세</th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">지급총액</th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">공제합계</th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">연봉 <span class="text-xs text-gray-500">(퇴직금제외)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">연봉 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담 <span class="text-xs text-gray-500">(퇴직금제외)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(제외)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(포함)</span></th>
+                </tr>
+              </thead>
+              <tbody id="multi_results" class="text-gray-800"></tbody>
+            </table>
+          </div>
+
+          <p id="table_status_multi" class="text-[11px] text-gray-400 mt-2">세액표 준비 상태: 로딩 중…</p>
         </div>
       </div>
     </section>
 
-    <section class="card p-4 text-center">
-      <footer class="text-xs text-gray-500">© 2025 한국병의원데이터. All Rights Reserved</footer>
+    <!-- ✅ 푸터 위 배너 2개 -->
+    <div class="px-4 sm:px-5 my-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- 배너 5 -->
+        <a href="https://www.kdrcash.kr/download" target="_blank" rel="noopener noreferrer" class="block group">
+          <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true"
+                 alt="다운로드"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+          </div>
+        </a>
+        <!-- 배너 6 -->
+        <a href="https://www.kdrcash.kr/survey" target="_blank" rel="noopener noreferrer" class="block group">
+          <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true"
+                 alt="개원 필수자료 모음"
+                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <section class="card p-4 text-center mt-4">
+      <footer class="text-xs text-gray-500">© 2024 한국병의원데이터. All Rights Reserved</footer>
     </section>
   </main>
 
-  <!-- 규칙 모달 -->
-  <div id="rules_modal" class="fixed inset-0 z-50 hidden items-center justify-center">
+  <!-- Ver 2.0 규칙 모달 -->
+  <div id="ver_modal" class="fixed inset-0 z-50 hidden items-center justify-center">
     <div class="absolute inset-0 bg-black/50"></div>
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="text-lg font-bold text-gray-900">계산 규칙</h3>
-        <button id="close_rules" class="p-2 -m-2 rounded-lg hover:bg-gray-100">✕</button>
+    <div role="dialog" aria-modal="true"
+         class="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl p-6">
+      <div class="flex items-start justify-between mb-3">
+        <h3 class="text-lg font-bold text-gray-800">버전 2.0 • 계산 규칙</h3>
+        <button id="ver_close"
+                class="p-2 -m-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label="닫기">✕</button>
       </div>
-      <ul class="list-disc pl-5 text-sm text-gray-700 space-y-1">
-        <li>간이세액표(JSON, 1인) 적용, 누락 시 법정 누진세율·근로소득공제 반영</li>
-        <li>국민연금: 천원 내림, 상·하한 적용</li>
-        <li>건강보험: 상·하한 적용, 장기요양=건보×12.95%</li>
-        <li>고용보험: 보수월액 기준</li>
-        <li>모든 세목·보험: 10원 절사</li>
-      </ul>
-      <div class="text-right mt-4">
-        <button id="ok_rules" class="px-4 py-2 rounded-lg bg-blue-600 text-white">확인</button>
+
+      <div class="text-sm text-gray-700 space-y-4">
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-1">적용 규칙</h4>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>2024 간이세액표(1인) 적용</li>
+            <li>4대보험 상·하한 반영</li>
+            <li>장기요양보험료 = 건강보험료 × <b>12.95%</b></li>
+            <li>모든 세목·보험 <b>10원 절사</b></li>
+            <li>세목·보험 산정 기준: <b>비과세 제외 금액</b></li>
+            <li>국민연금 기준소득: <b>천원단위</b>로 내림</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-semibold text-gray-900 mb-2">상·하한 | 면세 기준 (현재 계산식 사용값)</h4>
+          <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 space-y-1 text-[13px]">
+            <div class="flex justify-between"><span>국민연금 기준소득월액 하한</span><span id="np_min_label"></span></div>
+            <div class="flex justify-between"><span>국민연금 기준소득월액 상한</span><span id="np_max_label"></span></div>
+            <div class="flex justify-between"><span>건강보험 보수월액 하한</span><span id="hi_min_label"></span></div>
+            <div class="flex justify-between"><span>건강보험 보수월액 상한</span><span id="hi_max_label"></span></div>
+            <div class="flex justify-between font-semibold"><span>소득세 면세 기준</span><span id="tax_zero_label"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex justify-end">
+        <button id="ver_ok"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">확인</button>
       </div>
     </div>
   </div>
 
+  <!-- 스크립트 -->
   <script>
-    /* ========= 유틸 ========= */
-    const fmt = n => new Intl.NumberFormat('ko-KR').format(Math.round(n))+' 원';
-    const onlyNum = s => parseFloat((s||'0').replace(/[^\d]/g,''))||0;
+    // ===== 유틸 =====
+    function fmt(n){ return new Intl.NumberFormat('ko-KR').format(Math.round(n))+' 원'; }
+    const fmtPct = n => new Intl.NumberFormat('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)+' %';
+    const num = el => parseFloat((el.value||'0').replace(/[^\d]/g,''))||0;
     const trunc10 = v => Math.floor(v/10)*10;
     const clamp = (x,lo,hi)=>Math.min(Math.max(x,lo),hi);
-    const bindComma = el => el.addEventListener('input', e=>{
+    const bindComma = el => el.addEventListener('input', e => {
       const d = e.target.value.replace(/[^\d]/g,'');
       e.target.value = d ? new Intl.NumberFormat('ko-KR').format(+d) : '';
     });
 
-    // 입력 바인딩
-    ['net_pay','nontax'].forEach(id=>{
-      const el=document.getElementById(id); if(el) bindComma(el);
-    });
+    // ===== 탭 토글 =====
+    const tabSingleBtn = document.getElementById('tab_single');
+    const tabMultiBtn  = document.getElementById('tab_multi');
+    const contentSingle= document.getElementById('content_single');
+    const contentMulti = document.getElementById('content_multi');
 
-    // 모달
-    const modal=document.getElementById('rules_modal');
-    document.getElementById('open_rules').onclick=()=>{modal.classList.remove('hidden'); modal.classList.add('flex')};
-    function closeModal(){modal.classList.add('hidden'); modal.classList.remove('flex')}
-    document.getElementById('close_rules').onclick=closeModal;
-    document.getElementById('ok_rules').onclick=closeModal;
-    modal.addEventListener('click',e=>{const d=modal.querySelector('.relative'); if(!d.contains(e.target)) closeModal()});
+    const ACTIVE = ['text-blue-600','font-bold','border-blue-600'];
+    const INACTIVE = ['text-gray-500','border-transparent'];
 
-    /* ========= 파라미터 ========= */
+    function setActive(btnActive, btnInactive, show, hide){
+      btnActive.classList.add(...ACTIVE);
+      btnActive.classList.remove(...INACTIVE);
+      btnInactive.classList.add(...INACTIVE);
+      btnInactive.classList.remove(...ACTIVE);
+      show.classList.remove('hidden');
+      hide.classList.add('hidden');
+    }
+    tabSingleBtn.addEventListener('click', ()=>setActive(tabSingleBtn, tabMultiBtn, contentSingle, contentMulti));
+    tabMultiBtn.addEventListener('click',  ()=>setActive(tabMultiBtn, tabSingleBtn, contentMulti, contentSingle));
+    setActive(tabSingleBtn, tabMultiBtn, contentSingle, contentMulti); // 초기: 단일
+
+    // ===== 입력 바인딩 (단일) =====
+    const netInput = document.getElementById('net_pay');
+    const nonTaxInput = document.getElementById('nontax');
+    bindComma(netInput); bindComma(nonTaxInput);
+
+    // ===== 파라미터 =====
     const NP_MIN=400_000, NP_MAX=6_370_000;
     const HI_MIN=279_266, HI_MAX=127_056_982;
     const NP_RATE=0.0450, HI_RATE=0.03545, LTC_RATE=0.1295, EI_RATE=0.0090;
-    const TAX_ZERO_THRESHOLD=1_060_000;
+    const NP_ER_RATE=0.0450, HI_ER_RATE=0.03545, LTC_ER_RATE=0.1295, EI_ER_RATE=0.0115, WCI_ER_RATE=0.0072;
+    const BASE10_1PERSON_RAW=1_507_405;
+    const TAX_ZERO_THRESHOLD = 1_060_000;
 
-    const BRACKETS_2025 = [
-      { up:14_000_000, rate:0.06, ded:0 },
-      { up:50_000_000, rate:0.15, ded:1_260_000 },
-      { up:88_000_000, rate:0.24, ded:5_760_000 },
-      { up:150_000_000, rate:0.35, ded:15_440_000 },
-      { up:300_000_000, rate:0.38, ded:19_940_000 },
-      { up:500_000_000, rate:0.40, ded:25_940_000 },
-      { up:1_000_000_000, rate:0.42, ded:35_940_000 },
-      { up:Infinity, rate:0.45, ded:65_940_000 }
-    ];
-
-    function earnedIncomeDeduction(annual){
-      let d=0;
-      if (annual <= 5_000_000) d = annual*0.70;
-      else if (annual <= 15_000_000) d = 3_500_000 + (annual-5_000_000)*0.40;
-      else if (annual <= 45_000_000) d = 7_500_000 + (annual-15_000_000)*0.15;
-      else if (annual <= 100_000_000) d = 12_000_000 + (annual-45_000_000)*0.10;
-      else { d = 17_000_000 + (annual-100_000_000)*0.05; d = Math.min(d,20_000_000); }
-      return Math.floor(d);
+    // ===== 모달 =====
+    const verBtn = document.getElementById('ver_btn');
+    const verModal = document.getElementById('ver_modal');
+    const verClose = document.getElementById('ver_close');
+    const verOk = document.getElementById('ver_ok');
+    function fillVerModalBounds(){
+      document.getElementById('np_min_label').textContent = fmt(NP_MIN);
+      document.getElementById('np_max_label').textContent = fmt(NP_MAX);
+      document.getElementById('hi_min_label').textContent = fmt(HI_MIN);
+      document.getElementById('hi_max_label').textContent = fmt(HI_MAX);
+      document.getElementById('tax_zero_label').textContent = fmt(TAX_ZERO_THRESHOLD);
     }
+    function openVerModal(){ fillVerModalBounds(); verModal.classList.remove('hidden'); verModal.classList.add('flex'); document.body.classList.add('overflow-hidden'); }
+    function closeVerModal(){ verModal.classList.add('hidden'); verModal.classList.remove('flex'); document.body.classList.remove('overflow-hidden'); }
+    verBtn.addEventListener('click', openVerModal);
+    verClose.addEventListener('click', closeVerModal);
+    verOk.addEventListener('click', closeVerModal);
+    verModal.addEventListener('click', (e)=>{ const dialog=e.currentTarget.querySelector('[role="dialog"]'); if(!dialog.contains(e.target)) closeVerModal(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeVerModal(); });
 
-    function progressiveTaxMonthly(baseSalary){
-      const annualGross=baseSalary*12;
-      const deduction=earnedIncomeDeduction(annualGross);
-      const taxable=Math.max(0,annualGross-deduction-1_500_000); // 기본공제 150만
-      const b=BRACKETS_2025.find(br=>taxable<=br.up)||BRACKETS_2025.at(-1);
-      const annualTax=Math.max(0,taxable*b.rate - b.ded);
-      return trunc10(annualTax/12);
-    }
-
-    let TAX_TABLE=[],tableReady=false;
-    async function loadTable(){
-      const status=document.getElementById('table_status');
-      async function fetchJson(p){const r=await fetch(p,{cache:'no-store'});if(!r.ok) throw new Error(r.status);return r.json();}
+    // ===== 세액표 로딩 =====
+    let TAX_TABLE=[], tableReady=false;
+    const statusEl=document.getElementById('table_status');
+    const statusElMulti=document.getElementById('table_status_multi');
+    async function loadTax(){
+      async function tryFetch(path){
+        const r=await fetch(path,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+      }
       try{
-        try{TAX_TABLE=await fetchJson('./simplified_tax_table_2024_1person.v2.json');}
-        catch{TAX_TABLE=await fetchJson('./simplified_tax_table_2024_1person.json');}
+        try { TAX_TABLE = await tryFetch('./simplified_tax_table_2024_1person.v2.json'); }
+        catch { TAX_TABLE = await tryFetch('./simplified_tax_table_2024_1person.json'); }
         TAX_TABLE.sort((a,b)=>a.min_won-b.min_won);
-        tableReady=true; status.textContent='세액표 로드 완료';
+        tableReady=true;
+        if(statusEl) statusEl.textContent='세액표 로드 완료';
+        if(statusElMulti) statusElMulti.textContent='세액표 준비 상태: 로드 완료';
         document.getElementById('calc_btn').disabled=false;
-      }catch(e){status.textContent='세액표 로드 실패: '+e.message;}
+      }catch(e){
+        if(statusEl) statusEl.textContent='세액표 로드 실패: '+e.message;
+        if(statusElMulti) statusElMulti.textContent='세액표 로드 실패: '+e.message;
+      }
     }
-    loadTable();
+    loadTax();
 
-    function lookupTax(amount){
+    function lookupTable(x){
       let lo=0,hi=TAX_TABLE.length-1;
       while(lo<=hi){
         const m=(lo+hi)>>1,row=TAX_TABLE[m];
-        if(amount<row.min_won) hi=m-1;
-        else if(amount>=row.max_won) lo=m+1;
-        else return trunc10(+row.tax||0);
+        if(x<row.min_won) hi=m-1; else if(x>=row.max_won) lo=m+1;
+        else return {found:true,tax:+row.tax||0};
       }
-      return progressiveTaxMonthly(amount);
+      return {found:false,tax:0};
     }
 
-    /* ========= 계산 ========= */
-    document.getElementById('calc_btn').addEventListener('click', ()=>{
-      if(!tableReady) return;
-      const net=onlyNum(document.getElementById('net_pay').value);
-      const nontax=onlyNum(document.getElementById('nontax').value);
-      if(net<=0) return;
+    function simplifiedTax(amountExclNT){
+      const r=lookupTable(amountExclNT);
+      if(r.found) return trunc10(r.tax);
+      const g=amountExclNT, b10=BASE10_1PERSON_RAW; let t=b10;
+      if(g>10_000_000&&g<=14_000_000) t += 25_000 + 0.35*0.98*(g-10_000_000);
+      else if(g>14_000_000&&g<=28_000_000) t += 1_397_000 + 0.38*0.98*(g-14_000_000);
+      else if(g>28_000_000&&g<=30_000_000) t += 6_610_600 + 0.40*0.98*(g-28_000_000);
+      else if(g>30_000_000&&g<=45_000_000) t += 7_394_600 + 0.40*(g-30_000_000);
+      else if(g>45_000_000&&g<=87_000_000) t += 13_394_600 + 0.42*(g-45_000_000);
+      else if(g>87_000_000)               t += 31_034_600 + 0.45*(g-87_000_000);
+      return trunc10(t);
+    }
 
-      // 역산 루프
-      let gross=net/0.8;
-      for(let i=0;i<100;i++){
-        const baseInsRaw=gross-nontax;
-        const npBase=clamp(Math.floor(baseInsRaw/1000)*1000,NP_MIN,NP_MAX);
-        const hiBase=clamp(baseInsRaw,HI_MIN,HI_MAX);
-        const eiBase=baseInsRaw;
+    // ===== 공통 계산 =====
+    function compute(netPay, nonTax){
+      if(!tableReady || netPay<=0){ return null; }
 
-        const np=trunc10(npBase*NP_RATE);
-        const hi=trunc10(hiBase*HI_RATE);
-        const ltc=trunc10(hi*LTC_RATE);
-        const ei=trunc10(eiBase*EI_RATE);
+      // 지급총액 추정(고정점 수렴)
+      let approx = NP_RATE + HI_RATE + (HI_RATE*LTC_RATE) + EI_RATE; // 대략적 공제율
+      let gross = netPay / (1 - approx);
 
-        const itx=baseInsRaw<TAX_ZERO_THRESHOLD?0:lookupTax(baseInsRaw);
-        const ltx=baseInsRaw<TAX_ZERO_THRESHOLD?0:trunc10(itx*0.10);
+      for(let i=0;i<160;i++){
+        const baseIns = Math.max(gross - nonTax, 0);
+        const npBaseRaw = Math.floor(baseIns/1000)*1000;
+        const baseNP = clamp(npBaseRaw, NP_MIN, NP_MAX);
+        const baseHI = clamp(baseIns, HI_MIN, HI_MAX);
+        const baseEI = baseIns;
 
-        const total=np+hi+ltc+ei+itx+ltx;
-        const newGross=net+total+nontax;
-        if(Math.abs(newGross-gross)<1){gross=newGross;break;}
-        gross=newGross;
+        const np  = trunc10(baseNP * NP_RATE);
+        const hi  = trunc10(baseHI * HI_RATE);
+        const ltc = trunc10(hi * LTC_RATE);
+        const ei  = trunc10(baseEI * EI_RATE);
+
+        // 임계값: 면세
+        const tax  = baseIns < TAX_ZERO_THRESHOLD ? 0 : trunc10(simplifiedTax(baseIns));
+        const ltax = baseIns < TAX_ZERO_THRESHOLD ? 0 : trunc10(tax * 0.1);
+
+        const total = np + hi + ltc + ei + tax + ltax;
+        const newGross = netPay + total;
+        if (Math.abs(newGross - gross) < 1) { gross = newGross; break; }
+        gross = newGross;
       }
 
-      const baseSalary=gross-nontax;
-      const baseInsRaw=baseSalary;
-      const npBase=clamp(Math.floor(baseInsRaw/1000)*1000,NP_MIN,NP_MAX);
-      const hiBase=clamp(baseInsRaw,HI_MIN,HI_MAX);
-      const eiBase=baseInsRaw;
+      // 최종 산출
+      const baseIns = Math.max(gross - nonTax, 0);
+      const npBaseRaw = Math.floor(baseIns/1000)*1000;
+      const baseNP = clamp(npBaseRaw, NP_MIN, NP_MAX);
+      const baseHI = clamp(baseIns, HI_MIN, HI_MAX);
+      const baseEI = baseIns;
 
-      const np=trunc10(npBase*NP_RATE);
-      const hi=trunc10(hiBase*HI_RATE);
-      const ltc=trunc10(hi*LTC_RATE);
-      const ei=trunc10(eiBase*EI_RATE);
-      const itx=baseInsRaw<TAX_ZERO_THRESHOLD?0:lookupTax(baseInsRaw);
-      const ltx=baseInsRaw<TAX_ZERO_THRESHOLD?0:trunc10(itx*0.10);
+      const np  = trunc10(baseNP * NP_RATE);
+      const hi  = trunc10(baseHI * HI_RATE);
+      const ltc = trunc10(hi * LTC_RATE);
+      const ei  = trunc10(baseEI * EI_RATE);
 
-      const dedTotal=np+hi+ltc+ei+itx+ltx;
-      const payTotal=gross;
+      const tax  = baseIns < TAX_ZERO_THRESHOLD ? 0 : trunc10(simplifiedTax(baseIns));
+      const ltax = baseIns < TAX_ZERO_THRESHOLD ? 0 : trunc10(tax * 0.1);
 
-      document.getElementById('p_base').textContent=fmt(baseSalary);
-      document.getElementById('p_nontax').textContent=fmt(nontax);
-      document.getElementById('p_total').textContent=fmt(payTotal);
+      const total = np + hi + ltc + ei + tax + ltax;
 
-      document.getElementById('d_np').textContent=fmt(np);
-      document.getElementById('d_hi').textContent=fmt(hi);
-      document.getElementById('d_ltc').textContent=fmt(ltc);
-      document.getElementById('d_ei').textContent=fmt(ei);
-      document.getElementById('d_itx').textContent=fmt(itx);
-      document.getElementById('d_ltx').textContent=fmt(ltx);
-      document.getElementById('d_total').textContent=fmt(dedTotal);
+      const np_er  = trunc10(baseNP * NP_ER_RATE);
+      const hi_er  = trunc10(baseHI * HI_ER_RATE);
+      const ltc_er = trunc10(hi_er * LTC_ER_RATE);
+      const ei_er  = trunc10(baseEI * EI_ER_RATE);
+      const wci_er = trunc10(baseEI * WCI_ER_RATE);
+      const er_total = np_er + hi_er + ltc_er + ei_er + wci_er;
 
-      document.getElementById('net_take').textContent=fmt(net);
-      document.getElementById('result_card').classList.remove('hidden');
+      const social_total = (np + hi + ltc + ei) + er_total; // 4대보험 총액(근+사)
+      const withholding_total = tax + ltax;                  // 원천세 총액
+      const gratuity = Math.round(gross / 12);               // 퇴직금(반올림)
+      const overhead_excl = social_total + withholding_total;
+      const overhead_incl = overhead_excl + gratuity;
+
+      const total_burden_excl = netPay + overhead_excl;
+      const total_burden_incl = netPay + overhead_incl;
+
+      const annual_excl = Math.round(gross * 12);
+      const annual_incl = Math.round(gross * 13);
+
+      return {
+        gross, total, annual_excl, annual_incl,
+        social_total, withholding_total,
+        overhead_excl, overhead_incl,
+        gratuity,
+        total_burden_excl, total_burden_incl,
+        // 세부 공제(근로자)
+        np, hi, ltc, ei, tax, ltax,
+        // 사업주 부담
+        np_er, hi_er, ltc_er, ei_er, wci_er, er_total,
+        // 기준 금액
+        baseIns, baseNP, baseHI, baseEI, baseTax: baseIns
+      };
+    }
+
+    // ===== 세금계산내역(연간) 렌더링 =====
+    const TAX_DETAIL_DEFAULT = {
+      '총급여': 169_542_840,
+      '근로소득공제': 16_140_857,
+      '근로소득금액': 153_401_983,
+      '기본공제': 1_500_000,
+      '과세표준': 151_901_983,
+      '세율': '38%',
+      '산출세액': 37_782_754,
+      '근로소득세액공제': 200_000,
+      '표준세액공제': 130_000,
+      '결정세액': 37_452_754,
+      '기납부세액': 34_558_680,
+      '차감징수세액': 2_894_074
+    };
+
+    function renderAnnualTaxDetail(detail){
+      const tbody = document.getElementById('annual_tax_detail');
+      if(!tbody) return;
+      tbody.innerHTML = '';
+
+      const order = [
+        '총급여','근로소득공제','근로소득금액','기본공제','과세표준','세율',
+        '산출세액','근로소득세액공제','표준세액공제','결정세액','기납부세액','차감징수세액'
+      ];
+
+      order.forEach(key=>{
+        const tr = document.createElement('tr');
+        const isRate = key === '세율';
+        const isFinal = key === '차감징수세액';
+
+        tr.innerHTML = `
+          <td class="p-2 border-b text-center ${isRate||isFinal?'tone font-semibold':''}">${key}</td>
+          <td class="p-2 border-b text-right ${isRate||isFinal?'tone font-bold':''}">
+            ${isRate ? detail[key] : new Intl.NumberFormat('ko-KR').format(detail[key]) + ' 원'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ===== 단일 계산 버튼 =====
+    document.getElementById('calc_btn').addEventListener('click', ()=>{
+      if(!tableReady){ if(statusEl) statusEl.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
+      const netPay=num(netInput), nonTax=num(nonTaxInput);
+      if(netPay<=0){
+        document.getElementById('result').classList.add('hidden');
+        document.getElementById('error_message').classList.remove('hidden');
+        return;
+      }
+      const r=compute(netPay, nonTax);
+      if(!r){ return; }
+
+      const excl_pct = (r.total_burden_excl / netPay) * 100;
+      const incl_pct = (r.total_burden_incl / netPay) * 100;
+
+      // 요약
+      document.getElementById('social_total_summary').textContent    = fmt(r.social_total);
+      document.getElementById('withholding_total_summary').textContent = fmt(r.withholding_total);
+      document.getElementById('overhead_excl_gratuity').textContent = fmt(r.overhead_excl);
+      document.getElementById('gratuity_summary').textContent       = fmt(r.gratuity);
+      document.getElementById('overhead_incl_gratuity').textContent = fmt(r.overhead_incl);
+
+      document.getElementById('total_burden_excl').textContent = fmt(r.total_burden_excl);
+      document.getElementById('total_burden_incl').textContent = fmt(r.total_burden_incl);
+      document.getElementById('total_burden_excl_pct').textContent = fmtPct(excl_pct);
+      document.getElementById('total_burden_incl_pct').textContent = fmtPct(incl_pct);
+
+      document.getElementById('annual_excl').textContent = fmt(r.annual_excl);
+      document.getElementById('annual_incl').textContent = fmt(r.annual_incl);
+
+      document.getElementById('gross_pay_result').textContent        = fmt(r.gross);
+      document.getElementById('deductions_total_result').textContent = fmt(r.total);
+
+      // 세부 공제 내역(근로자)
+      document.getElementById('np_deduction').textContent     = fmt(r.np);
+      document.getElementById('hi_deduction').textContent     = fmt(r.hi);
+      document.getElementById('ltc_deduction').textContent    = fmt(r.ltc);
+      document.getElementById('ei_deduction').textContent     = fmt(r.ei);
+      document.getElementById('tax_deduction').textContent    = fmt(r.tax);
+      document.getElementById('local_tax_deduction').textContent = fmt(r.ltax);
+
+      // 사업주 부담분
+      document.getElementById('np_er').textContent   = fmt(r.np_er);
+      document.getElementById('hi_er').textContent   = fmt(r.hi_er);
+      document.getElementById('ltc_er').textContent  = fmt(r.ltc_er);
+      document.getElementById('ei_er').textContent   = fmt(r.ei_er);
+      document.getElementById('wci_er').textContent  = fmt(r.wci_er);
+      document.getElementById('er_total').textContent= fmt(r.er_total);
+
+      // 기준 금액
+      document.getElementById('base_ins').textContent = fmt(r.baseIns);
+      document.getElementById('base_np').textContent  = fmt(r.baseNP);
+      document.getElementById('base_hi').textContent  = fmt(r.baseHI);
+      document.getElementById('base_ei').textContent  = fmt(r.baseEI);
+      document.getElementById('base_tax').textContent = fmt(r.baseTax);
+
+      // 세금계산내역(연간) 렌더
+      renderAnnualTaxDetail(TAX_DETAIL_DEFAULT);
+
+      document.getElementById('error_message').classList.add('hidden');
+      document.getElementById('result').classList.remove('hidden');
+    });
+
+    // ===== 다중 계산식 =====
+    const multiInputs = document.getElementById('multi_inputs');
+    const multiResults = document.getElementById('multi_results');
+    const addRowBtn = document.getElementById('add_row');
+    const calcMultiBtn = document.getElementById('calc_multi');
+
+    function createRow(initialNet='', initialNT=''){
+      const row = document.createElement('div');
+      row.className='flex flex-col sm:flex-row gap-2';
+      row.innerHTML = `
+        <input type="text" inputmode="numeric" placeholder="실수령액"
+               class="net-input w-full sm:w-64 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               value="${initialNet}">
+        <input type="text" inputmode="numeric" placeholder="비과세 합계(없으면 0)"
+               class="nontax-input w-full sm:w-64 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               value="${initialNT}">
+        <button type="button" class="remove-row px-3 py-2 text-sm rounded-lg border hover:bg-gray-100">삭제</button>
+      `;
+      multiInputs.appendChild(row);
+
+      const netEl=row.querySelector('.net-input');
+      const ntEl=row.querySelector('.nontax-input');
+      bindComma(netEl); bindComma(ntEl);
+      row.querySelector('.remove-row').addEventListener('click', ()=>{ row.remove(); });
+    }
+    createRow(); createRow();
+    addRowBtn.addEventListener('click', ()=>createRow());
+
+    calcMultiBtn.addEventListener('click', ()=>{
+      if(!tableReady){ if(statusElMulti) statusElMulti.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
+      multiResults.innerHTML='';
+      const rows = Array.from(multiInputs.children);
+      rows.forEach(r=>{
+        const netEl=r.querySelector('.net-input');
+        const ntEl=r.querySelector('.nontax-input');
+        const netPay = parseFloat((netEl.value||'').replace(/[^\d]/g,''))||0;
+        const nonTax = parseFloat((ntEl.value||'').replace(/[^\d]/g,''))||0;
+        if(netPay<=0){ return; }
+        const res = compute(netPay, nonTax);
+        if(!res){ return; }
+
+        const exclPct = (res.total_burden_excl/netPay)*100;
+        const inclPct = (res.total_burden_incl/netPay)*100;
+
+        const tr = document.createElement('tr');
+        tr.className='border-t';
+        tr.innerHTML = `
+          <td class="p-2 whitespace-nowrap text-right">${fmt(netPay)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(nonTax)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(res.gross)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(res.total)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(res.annual_excl)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(res.annual_incl)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_excl)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmtPct(exclPct)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_incl)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
+        `;
+        multiResults.appendChild(tr);
+      });
+
+      if(!multiResults.children.length){
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td colspan="10" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
+        multiResults.appendChild(tr);
+      }
     });
   </script>
 </body>
