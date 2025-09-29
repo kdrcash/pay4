@@ -311,6 +311,9 @@
     const BASE10_1PERSON_RAW=1_507_405;
     const TAX_ZERO_THRESHOLD = 1_060_000;
 
+    /* ✅ 근로소득공제 한도 */
+    const EARNED_DED_CAP = 20_000_000; // 2천만원
+
     /* ========== 모달 ========== */
     const verBtn = document.getElementById('ver_btn'), verModal = document.getElementById('ver_modal');
     const verClose = document.getElementById('ver_close'), verOk = document.getElementById('ver_ok');
@@ -379,7 +382,10 @@
       else if (x <= 45_000_000) d = 7_500_000 + (x - 15_000_000) * 0.15;
       else if (x <= 100_000_000) d = 12_000_000 + (x - 45_000_000) * 0.05;
       else d = 14_750_000 + (x - 100_000_000) * 0.02;
-      return Math.floor(d);
+
+      // ✅ 한도 2천만원 적용
+      const capped = Math.min(Math.floor(d), EARNED_DED_CAP);
+      return capped;
     }
     function incomeTaxProgressive(taxBase){
       const tb = Math.max(0, Math.floor(taxBase));
@@ -401,8 +407,8 @@
       let cap = 0;
       if (annualSalary <= 33_000_000) cap = 740_000;
       else if (annualSalary <= 70_000_000) cap = Math.max(660_000, 740_000 - (annualSalary - 33_000_000) * 0.008);
-      else if (annualSalary <= 120_000_000) cap = Math.max(500_000, 660_000 - (annualSalary - 70_000_000) * 0.5);
-      else cap = Math.max(200_000, 500_000 - (annualSalary - 120_000_000) * 0.5);
+      else if (annualSalary <= 120_000_000) cap = Math.max(500_000, 660_000 - (annualSalary - 70_000_000) * 0.005);
+      else cap = Math.max(200_000, 500_000 - (annualSalary - 120_000_000) * 0.005);
       return Math.min(credit, Math.floor(cap));
     }
 
@@ -486,7 +492,7 @@
     function renderAnnualTaxDetailFromMonthly(res){
       // 총급여(연) = (월 지급총액 - 월 비과세) × 12
       const annualSalary = Math.max(0, Math.round((res.gross - res.nonTax) * 12));
-      const earnedDed = earnedIncomeDeduction(annualSalary);                 // 근로소득공제
+      const earnedDed = earnedIncomeDeduction(annualSalary);                 // 근로소득공제 (한도 2천 적용)
       const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);        // 근로소득금액
       const basicDeduction = 1_500_000;                                     // 기본공제(1인)
       const taxBase = Math.max(0, earnedIncomeAmt - basicDeduction);        // 과세표준
