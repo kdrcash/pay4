@@ -93,7 +93,7 @@
               <div class="bg-white rounded-lg border p-3">
                 <div class="text-gray-700 font-medium">연봉(퇴직금 포함)</div>
                 <div id="annual_incl" class="font-semibold text-gray-900 mt-1"></div>
-                <div class="text-[11px] text-gray-500 mt-1">(= 지급총액 × 13)</div>
+                <div class="text:[11px] text-gray-500 mt-1">(= 지급총액 × 13)</div>
               </div>
             </div>
 
@@ -158,16 +158,29 @@
               </div>
             </div>
 
-            <!-- 연간 세금계산내역 -->
+            <!-- ✅ 세금계산내역 (연간) : 모바일 최적화 -->
             <div class="mt-8">
-              <h3 class="text-lg font-bold text-gray-800 mb-1">세금계산내역 (연간)</h3>
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <h3 class="text-lg font-bold text-gray-800">세금계산내역 (연간)</h3>
+                <!-- 모바일에서만 노출되는 요약/전체 토글 -->
+                <button id="annual_toggle"
+                        class="sm:hidden text-xs px-2 py-1 rounded-md border text-gray-700 hover:bg-gray-100"
+                        type="button" aria-pressed="false">
+                  요약 보기
+                </button>
+              </div>
               <p class="text-[11px] text-gray-500 mb-2">
                 총급여(연) = (월 지급총액 − 월 비과세) × 12 · 표의 ‘기납부세액/차감징수세액’은 소득세만 반영합니다.
               </p>
-              <div class="overflow-x-auto">
-                <table class="min-w-[560px] w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+
+              <!-- 래퍼: 모바일 내부 스크롤 + sticky 헤더, 데스크톱은 기존처럼 전체 표시 -->
+              <div id="annual_wrapper"
+                   class="overflow-x-auto sm:overflow-visible
+                          sm:max-h-none sm:rounded-lg
+                          max-h-72 rounded-lg border border-gray-200">
+                <table class="min-w-[560px] w-full text-sm rounded-lg overflow-hidden">
                   <colgroup><col class="w-48"><col></colgroup>
-                  <thead class="bg-gray-50 text-gray-700">
+                  <thead class="bg-gray-50 text-gray-700 sticky top-0 z-10">
                     <tr><th class="p-2 border-b text-center">구분</th><th class="p-2 border-b text-right">금액</th></tr>
                   </thead>
                   <tbody id="annual_tax_detail" class="bg-white text-gray-800"></tbody>
@@ -387,8 +400,6 @@
       else if (x <= 45_000_000) d = 7_500_000 + (x - 15_000_000) * 0.15;
       else if (x <= 100_000_000) d = 12_000_000 + (x - 45_000_000) * 0.05;
       else d = 14_750_000 + (x - 100_000_000) * 0.02;
-
-      // ✅ 한도 2천만원 적용
       const capped = Math.min(Math.floor(d), EARNED_DED_CAP);
       return capped;
     }
@@ -493,29 +504,38 @@
       };
     }
 
-    /* ========== 연간 세금계산내역(연동) ========== */
+    /* ========== ✅ 연간 세금계산내역: 모바일 요약/전체 렌더러 ========== */
+    // 모바일에서 기본은 요약, 데스크톱은 항상 전체 표시
+    const MOBILE_KEYS = new Set([
+      '총급여',
+      '과세표준',
+      '산출세액',
+      '결정세액',
+      '기납부세액(소득세)',
+      '차감징수세액(소득세)',
+      '차감징수지방세(10%)'
+    ]);
+    let annualFullMobile = false; // 모바일 전용 토글 상태
+
     function renderAnnualTaxDetailFromMonthly(res){
-      // 총급여(연) = (월 지급총액 - 월 비과세) × 12
+      const isMobile = window.matchMedia('(max-width: 640px)').matches;
+      const tbody = document.getElementById('annual_tax_detail');
+      const toggleBtn = document.getElementById('annual_toggle');
+
+      // rows 원본
       const annualSalary = Math.max(0, Math.round((res.gross - res.nonTax) * 12));
-      const earnedDed = earnedIncomeDeduction(annualSalary);                 // 근로소득공제 (한도 2천 적용)
-      const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);        // 근로소득금액
-      const basicDeduction = 1_500_000;                                     // 기본공제(1인)
-      const taxBase = Math.max(0, earnedIncomeAmt - basicDeduction);        // 과세표준
-      const { tax: computedIncomeTax, topRate } = incomeTaxProgressive(taxBase); // 산출세액(소득세)
-      const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);  // 근로소득세액공제
-      const stdCredit = 130_000;                                            // 표준세액공제
-      const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit); // 결정세액(소득세)
-
-      // ✅ 월 원천세 중 '소득세만' 집계하여 연 환산
+      const earnedDed = earnedIncomeDeduction(annualSalary);
+      const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);
+      const basicDeduction = 1_500_000;
+      const taxBase = Math.max(0, earnedIncomeAmt - basicDeduction);
+      const { tax: computedIncomeTax, topRate } = incomeTaxProgressive(taxBase);
+      const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);
+      const stdCredit = 130_000;
+      const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);
       const prepaidIncomeTaxOnly = Math.round(res.tax * 12);
-
-      // ✅ 차감징수세액(소득세만) 및 지방세(10%)
       const diffIncomeTax = finalIncomeTax - prepaidIncomeTaxOnly;
       const diffLocalTax  = Math.round(diffIncomeTax * 0.10);
 
-      // 렌더
-      const tbody = document.getElementById('annual_tax_detail');
-      tbody.innerHTML = '';
       const rows = [
         ['총급여', annualSalary],
         ['근로소득공제', earnedDed],
@@ -532,7 +552,25 @@
         ['차감징수지방세(10%)', diffLocalTax],
       ];
 
-      rows.forEach(([k,v])=>{
+      // 모바일에서는 요약/전체 선택
+      const filtered = (isMobile && !annualFullMobile)
+        ? rows.filter(([k]) => MOBILE_KEYS.has(k))
+        : rows;
+
+      // 버튼 상태 업데이트 (모바일에서만 보임)
+      if (toggleBtn) {
+        if (isMobile) {
+          toggleBtn.classList.remove('hidden');
+          toggleBtn.textContent = annualFullMobile ? '요약 보기' : '전체 보기';
+          toggleBtn.setAttribute('aria-pressed', String(annualFullMobile));
+        } else {
+          toggleBtn.classList.add('hidden'); // 데스크톱은 버튼 숨김(항상 전체 표시)
+        }
+      }
+
+      // 테이블 렌더
+      tbody.innerHTML = '';
+      filtered.forEach(([k,v])=>{
         const isRate = k==='세율';
         const isFinal = (k==='차감징수세액(소득세)' || k==='차감징수지방세(10%)');
         const tr=document.createElement('tr');
@@ -543,6 +581,16 @@
           </td>`;
         tbody.appendChild(tr);
       });
+
+      // 모바일에서 테이블 자체는 내부 스크롤 (max-h-72). 데스크톱은 제한 해제.
+      const wrap = document.getElementById('annual_wrapper');
+      if (wrap) {
+        if (isMobile) {
+          wrap.classList.add('max-h-72','overflow-y-auto','border');
+        } else {
+          wrap.classList.remove('max-h-72','overflow-y-auto');
+        }
+      }
     }
 
     /* ========== 이벤트: 단일 계산 ========== */
@@ -596,12 +644,26 @@
       document.getElementById('base_ei').textContent  = fmt(r.baseEI);
       document.getElementById('base_tax').textContent = fmt(r.baseTax);
 
-      // 연간 세금계산내역 (소득세만 반영 + 지방세 10%)
+      // ✅ 연간 세금계산내역 (모바일 최적화 렌더)
       renderAnnualTaxDetailFromMonthly(r);
 
       document.getElementById('error_message').classList.add('hidden');
       document.getElementById('result').classList.remove('hidden');
     });
+
+    // ✅ 모바일 요약/전체 토글 버튼 이벤트
+    const annualToggleBtn = document.getElementById('annual_toggle');
+    if (annualToggleBtn) {
+      annualToggleBtn.addEventListener('click', () => {
+        annualFullMobile = !annualFullMobile;
+        // 이미 계산된 결과가 보이는 상태라면 현재 값으로 재렌더
+        const netPay = num(netInput), nonTax = num(nonTaxInput);
+        if (tableReady && netPay > 0) {
+          const r = compute(netPay, nonTax);
+          if (r) renderAnnualTaxDetailFromMonthly(r);
+        }
+      });
+    }
 
     /* ========== 다중 ========== */
     const multiInputs = document.getElementById('multi_inputs');
