@@ -181,7 +181,7 @@
         </div>
       </div>
 
-      <!-- 다중 (원형 유지) -->
+      <!-- 다중 컨텐츠 -->
       <div id="content_multi" class="hidden">
         <div class="bg-white rounded-2xl p-6 md:p-8 border">
           <div class="flex items-center justify-between mb-3">
@@ -191,7 +191,11 @@
               <button id="calc_multi" class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">다중 계산</button>
             </div>
           </div>
+
+          <!-- 입력 행 컨테이너 -->
           <div id="multi_inputs" class="space-y-2"></div>
+
+          <!-- 결과 표 -->
           <div class="overflow-x-auto xl:overflow-visible mt-4">
             <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden min-w-[1100px] xl:min-w-0">
               <thead class="bg-gray-50 text-gray-700">
@@ -200,17 +204,18 @@
                   <th class="p-2 border-b text-right whitespace-nowrap">비과세</th>
                   <th class="p-2 border-b text-right whitespace-nowrap">지급총액</th>
                   <th class="p-2 border-b text-right whitespace-nowrap">공제합계</th>
-                  <th class="p-2 border-b text-right whitespace-nowrap">연봉(제외)</th>
-                  <th class="p-2 border-b text-right whitespace-nowrap">연봉(포함)</th>
-                  <th class="p-2 border-b text-right whitespace-nowrap">총부담(제외)</th>
-                  <th class="p-2 border-b text-right whitespace-nowrap">총부담%(제외)</th>
-                  <th class="p-2 border-b text-right whitespace-nowrap">총부담(포함)</th>
-                  <th class="p-2 border-b text-right whitespace-nowrap">총부담%(포함)</th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">연봉 <span class="text-xs text-gray-500">(퇴직금제외)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">연봉 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담 <span class="text-xs text-gray-500">(퇴직금제외)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(제외)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(포함)</span></th>
                 </tr>
               </thead>
               <tbody id="multi_results" class="text-gray-800"></tbody>
             </table>
           </div>
+
           <p id="table_status_multi" class="text-[11px] text-gray-400 mt-2">세액표 준비 상태: 로딩 중…</p>
         </div>
       </div>
