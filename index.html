@@ -426,8 +426,8 @@
       let cap = 0;
       if (annualSalary <= 33_000_000) cap = 740_000;
       else if (annualSalary <= 70_000_000) cap = Math.max(660_000, 740_000 - (annualSalary - 33_000_000) * 0.008);
-      else if (annualSalary <= 120_000_000) cap = Math.max(500_000, 660_000 - (annualSalary - 70_000_000) * 0.005);
-      else cap = Math.max(200_000, 500_000 - (annualSalary - 120_000_000) * 0.005);
+      else if (annualSalary <= 120_000_000) cap = Math.max(500_000, 660_000 - (annualSalary - 70_000_000) * 0.5);
+      else cap = Math.max(200_000, 500_000 - (annualSalary - 120_000_000) * 0.5);
       return Math.min(credit, Math.floor(cap));
     }
 
