@@ -579,12 +579,13 @@
       toRender.forEach(([k,v])=>{
         const isRate = k==='세율';
         const isFinal = (k==='차감징수세액(소득세)' || k==='차감징수지방세(10%)');
+        const isEmph  = (k === '근로소득금액' || k === '결정세액');
         const tr=document.createElement('tr');
         tr.innerHTML = `
-          <td class="p-1.5 sm:p-2 border-b text-left ${isRate||isFinal?'tone font-semibold':''}">${k}</td>
-          <td class="p-1.5 sm:p-2 border-b text-right ${isRate||isFinal?'tone font-bold':''}">
-            ${isRate ? v : new Intl.NumberFormat('ko-KR').format(v)+' 원'}
-          </td>`;
+	  <td class="p-1.5 sm:p-2 border-b text-left ${(isRate || isFinal || k==='근로소득금액' || k==='결정세액') ? 'tone font-semibold' : ''}">${k}</td>
+	  <td class="p-1.5 sm:p-2 border-b text-right ${(isRate || isFinal || k==='근로소득금액' || k==='결정세액') ? 'tone font-bold' : ''}">
+  	  ${isRate ? v : new Intl.NumberFormat('ko-KR').format(v) + ' 원'}
+	  </td>`;
         tbody.appendChild(tr);
       });
     }
