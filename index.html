@@ -10,6 +10,11 @@
     .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
     .tone { background:#fef9c3 } /* 노란 강조 */
 
+    /* ✅ 숫자 정렬 안정화 */
+    .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+    .nowrap { white-space: nowrap; }
+    #annual_table td.num, #annual_table th.num { text-align: right; }
+
     /* ✅ 모바일일 때 연간 표의 좌우 여백/글자 크기 자동 축소 */
     @media (max-width: 640px){
       #annual_table th, #annual_table td { padding: 6px 8px; }
@@ -183,9 +188,10 @@
                 <table id="annual_table" class="w-full text-xs sm:text-sm">
                   <thead class="bg-gray-50 text-gray-700">
                     <tr>
-                      <!-- 좌측 정렬로 변경 -->
+                      <!-- 좌측 정렬 -->
                       <th class="p-1.5 sm:p-2 border-b text-left">구분</th>
-                      <th class="p-1.5 sm:p-2 border-b text-right">금액</th>
+                      <!-- ✅ 숫자열에 num + tnum 적용 -->
+                      <th class="p-1.5 sm:p-2 border-b text-right num tnum">금액</th>
                     </tr>
                   </thead>
                   <tbody id="annual_tax_detail" class="bg-white text-gray-800"></tbody>
@@ -564,12 +570,10 @@
 
       // summary ↔ full에 따라 가로 스크롤/폭 동작 변경
       if (annualFull){
-        // 전체 보기: sm 이상에서만 min-width 적용 → 모바일은 꽉 차게(가로 스크롤 최소화)
         wrap.classList.add('overflow-x-auto');
         table.classList.add('sm:min-w-[560px]');
         table.classList.remove('min-w-[560px]');
       } else {
-        // 요약 보기: 가로 스크롤 숨김 + min-w 제거
         wrap.classList.remove('overflow-x-auto');
         table.classList.remove('min-w-[560px]', 'sm:min-w-[560px]');
       }
@@ -582,10 +586,11 @@
         const isEmph  = (k === '근로소득금액' || k === '결정세액');
         const tr=document.createElement('tr');
         tr.innerHTML = `
-	  <td class="p-1.5 sm:p-2 border-b text-left ${(isRate || isFinal || k==='근로소득금액' || k==='결정세액') ? 'tone font-semibold' : ''}">${k}</td>
-	  <td class="p-1.5 sm:p-2 border-b text-right ${(isRate || isFinal || k==='근로소득금액' || k==='결정세액') ? 'tone font-bold' : ''}">
-  	  ${isRate ? v : new Intl.NumberFormat('ko-KR').format(v) + ' 원'}
-	  </td>`;
+          <td class="p-1.5 sm:p-2 border-b text-left ${(isRate || isFinal || isEmph) ? 'tone font-semibold' : ''}">${k}</td>
+          <!-- ✅ 숫자 셀에 num tnum + nowrap 적용 -->
+          <td class="p-1.5 sm:p-2 border-b text-right num tnum ${(isRate || isFinal || isEmph) ? 'tone font-bold' : ''}">
+            <span class="nowrap">${isRate ? v : new Intl.NumberFormat('ko-KR').format(v) + ' 원'}</span>
+          </td>`;
         tbody.appendChild(tr);
       });
     }
