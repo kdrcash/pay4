@@ -556,7 +556,7 @@
         ['근로소득금액', earnedIncomeAmt],
         ['기본공제', basicDeduction],
         ['과세표준', taxBase],
-        ['세율', (topRate*100).toFixed(0)+'%'],
+        ['세율', (topRate*100).toFixed(0)+' %'],
         ['산출세액', computedIncomeTax],
         ['근로소득세액공제', eitc],
         ['표준세액공제', stdCredit],
@@ -720,7 +720,7 @@
           <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(earnedIncomeAmt)}</td>
           <!-- ✅ % 우측 정렬 & 고정폭 숫자 -->
-          <td class="p-2 whitespace-nowrap text-right tnum">${(topRate*100).toFixed(0)}%</td>
+          <td class="p-2 whitespace-nowrap text-right tnum">${(topRate*100).toFixed(0)} %</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>`;
         multiResults.appendChild(tr);
       });
