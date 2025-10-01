@@ -10,12 +10,12 @@
     .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
     .tone { background:#fef9c3 } /* 노란 강조 */
 
-    /* ✅ 숫자 정렬 안정화 */
+    /* 숫자 정렬 안정화 */
     .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
     .nowrap { white-space: nowrap; }
     #annual_table td.num, #annual_table th.num { text-align: right; }
 
-    /* ✅ 모바일일 때 연간 표의 좌우 여백/글자 크기 자동 축소 */
+    /* 모바일일 때 연간 표의 좌우 여백/글자 크기 자동 축소 */
     @media (max-width: 640px){
       #annual_table th, #annual_table td { padding: 6px 8px; }
     }
@@ -216,9 +216,9 @@
 
           <div id="multi_inputs" class="space-y-2"></div>
 
-          <!-- ⬇️ 새 컬럼 3개 추가에 맞춰 min-width 확장 -->
-          <div class="overflow-x-auto xl:overflow-visible mt-4">
-            <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden min-w-[1400px] xl:min-w-0">
+          <!-- ✅ PC에서도 가로 스크롤이 항상 가능하도록 overflow-x-auto 유지 -->
+          <div class="overflow-x-auto mt-4">
+            <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden min-w-[1400px]">
               <thead class="bg-gray-50 text-gray-700">
                 <tr>
                   <th class="p-2 border-b text-right whitespace-nowrap">실수령액</th>
@@ -231,9 +231,10 @@
                   <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(제외)</span></th>
                   <th class="p-2 border-b text-right whitespace-nowrap">총부담 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
                   <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(포함)</span></th>
-                  <!-- ✅ 추가 컬럼들 -->
+                  <!-- 추가 컬럼들 -->
                   <th class="p-2 border-b text-right whitespace-nowrap">근로소득금액</th>
-                  <th class="p-2 border-b text-center whitespace-nowrap">세율구간</th>
+                  <!-- ✅ 세율구간을 우측 정렬 & 숫자 폭 고정 -->
+                  <th class="p-2 border-b text-right whitespace-nowrap tnum">세율구간</th>
                   <th class="p-2 border-b text-right whitespace-nowrap">결정세액</th>
                 </tr>
               </thead>
@@ -307,7 +308,7 @@
   <script>
     /* ========== 유틸 ========== */
     function fmt(n){ return new Intl.NumberFormat('ko-KR').format(Math.round(n))+' 원'; }
-    const fmtRaw = n => new Intl.NumberFormat('ko-KR').format(Math.round(n)); // 단위 없는 숫자 포맷
+    const fmtRaw = n => new Intl.NumberFormat('ko-KR').format(Math.round(n));
     const fmtPct = n => new Intl.NumberFormat('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)+' %';
     const num = el => parseFloat((el.value||'0').replace(/[^\d]/g,''))||0;
     const trunc10 = v => Math.floor(v/10)*10;
@@ -342,8 +343,8 @@
     const BASE10_1PERSON_RAW=1_507_405;
     const TAX_ZERO_THRESHOLD = 1_060_000;
 
-    /* ✅ 근로소득공제 한도 */
-    const EARNED_DED_CAP = 20_000_000; // 2천만원
+    /* 근로소득공제 한도 */
+    const EARNED_DED_CAP = 20_000_000;
 
     /* ========== 모달 ========== */
     const verBtn = document.getElementById('ver_btn'), verModal = document.getElementById('ver_modal');
@@ -527,8 +528,8 @@
       '차감징수세액(소득세)',
       '차감징수지방세(10%)'
     ]);
-    let annualFull = false;     // 기본: 요약 보기
-    let lastResult = null;      // 최근 계산 결과 저장
+    let annualFull = false;
+    let lastResult = null;
 
     function renderAnnualTaxDetailFromMonthly(res){
       const tbody = document.getElementById('annual_tax_detail');
@@ -536,7 +537,6 @@
       const wrap = document.getElementById('annual_wrapper');
       const table = document.getElementById('annual_table');
 
-      // 계산 로우 생성
       const annualSalary = Math.max(0, Math.round((res.gross - res.nonTax) * 12));
       const earnedDed = earnedIncomeDeduction(annualSalary);
       const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);
@@ -568,11 +568,9 @@
 
       const toRender = annualFull ? rows : rows.filter(([k])=>SUMMARY_KEYS.has(k));
 
-      // 토글 버튼 상태
       toggleBtn.textContent = annualFull ? '요약 보기' : '전체 보기';
       toggleBtn.setAttribute('aria-pressed', String(annualFull));
 
-      // summary ↔ full에 따라 가로 스크롤/폭 동작 변경
       if (annualFull){
         wrap.classList.add('overflow-x-auto');
         table.classList.add('sm:min-w-[560px]');
@@ -582,7 +580,6 @@
         table.classList.remove('min-w-[560px]', 'sm:min-w-[560px]');
       }
 
-      // 렌더링
       tbody.innerHTML='';
       toRender.forEach(([k,v])=>{
         const isRate = k==='세율';
@@ -609,7 +606,7 @@
       }
       const r=compute(netPay, nonTax);
       if(!r){ return; }
-      lastResult = r; // 최근 결과 저장
+      lastResult = r;
 
       const excl_pct = (r.total_burden_excl / netPay) * 100;
       const incl_pct = (r.total_burden_incl / netPay) * 100;
@@ -650,7 +647,6 @@
       document.getElementById('base_ei').textContent  = fmt(r.baseEI);
       document.getElementById('base_tax').textContent = fmt(r.baseTax);
 
-      // 요약 모드 기본
       annualFull = false;
       renderAnnualTaxDetailFromMonthly(r);
 
@@ -658,7 +654,7 @@
       document.getElementById('result').classList.remove('hidden');
     });
 
-    // ✅ 요약/전체 토글 버튼
+    // 요약/전체 토글 버튼
     const annualToggleBtn = document.getElementById('annual_toggle');
     annualToggleBtn.addEventListener('click', () => {
       annualFull = !annualFull;
@@ -697,16 +693,16 @@
 
         const res = compute(netPay, nonTax);
 
-        // ⬇️ 단일 계산 로직 차용 → (1) 근로소득금액, (2) 세율구간, (3) 결정세액
-        const annualSalary = Math.max(0, Math.round((res.gross - nonTax) * 12));     // 총급여(연)
-        const earnedDed = earnedIncomeDeduction(annualSalary);                        // 근로소득공제
-        const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);                // (1) 근로소득금액
+        // 단일 계산 로직 차용
+        const annualSalary = Math.max(0, Math.round((res.gross - nonTax) * 12));
+        const earnedDed = earnedIncomeDeduction(annualSalary);
+        const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed); // 근로소득금액
         const basicDeduction = 1_500_000;
-        const taxBase = Math.max(0, earnedIncomeAmt - basicDeduction);                // 과세표준
-        const { tax: computedIncomeTax, topRate } = incomeTaxProgressive(taxBase);    // 산출세액 & (2) 세율구간
+        const taxBase = Math.max(0, earnedIncomeAmt - basicDeduction);
+        const { tax: computedIncomeTax, topRate } = incomeTaxProgressive(taxBase);
         const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);
         const stdCredit = 130_000;
-        const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);     // (3) 결정세액
+        const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit); // 결정세액
 
         const exclPct = (res.total_burden_excl/netPay)*100, inclPct = (res.total_burden_incl/netPay)*100;
 
@@ -722,9 +718,9 @@
           <td class="p-2 whitespace-nowrap text-right">${fmtPct(exclPct)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_incl)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
-          <!-- ✅ 추가 3칸 -->
           <td class="p-2 whitespace-nowrap text-right">${fmt(earnedIncomeAmt)}</td>
-          <td class="p-2 whitespace-nowrap text-center">${(topRate*100).toFixed(0)}%</td>
+          <!-- ✅ % 우측 정렬 & 고정폭 숫자 -->
+          <td class="p-2 whitespace-nowrap text-right tnum">${(topRate*100).toFixed(0)}%</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>`;
         multiResults.appendChild(tr);
       });
