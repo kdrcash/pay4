@@ -31,7 +31,7 @@
       </div>
     </section>
 
-    <!-- 상단 배너 (원본 구조 유지) -->
+    <!-- 상단 배너 -->
     <div class="px-4 sm:px-5 mb-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <a href="https://www.kdrcash.kr/" target="_blank" rel="noopener noreferrer" class="block group">
@@ -171,7 +171,7 @@
               </div>
             </div>
 
-            <!-- ✅ 연간: 기본 요약, 버튼으로 전체/요약 전환 + 모바일 좌우 여백 축소 -->
+            <!-- 연간: 요약/전체 토글 -->
             <div class="mt-8">
               <div class="flex items-center justify-between gap-2 mb-1">
                 <h3 class="text-lg font-bold text-gray-800">세금계산내역 (연간)</h3>
@@ -188,9 +188,7 @@
                 <table id="annual_table" class="w-full text-xs sm:text-sm">
                   <thead class="bg-gray-50 text-gray-700">
                     <tr>
-                      <!-- 좌측 정렬 -->
                       <th class="p-1.5 sm:p-2 border-b text-left">구분</th>
-                      <!-- ✅ 숫자열에 num + tnum 적용 -->
                       <th class="p-1.5 sm:p-2 border-b text-right num tnum">금액</th>
                     </tr>
                   </thead>
@@ -218,8 +216,9 @@
 
           <div id="multi_inputs" class="space-y-2"></div>
 
+          <!-- ⬇️ 새 컬럼 3개 추가에 맞춰 min-width 확장 -->
           <div class="overflow-x-auto xl:overflow-visible mt-4">
-            <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden min-w-[1100px] xl:min-w-0">
+            <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden min-w-[1400px] xl:min-w-0">
               <thead class="bg-gray-50 text-gray-700">
                 <tr>
                   <th class="p-2 border-b text-right whitespace-nowrap">실수령액</th>
@@ -232,6 +231,10 @@
                   <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(제외)</span></th>
                   <th class="p-2 border-b text-right whitespace-nowrap">총부담 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
                   <th class="p-2 border-b text-right whitespace-nowrap">총부담% <span class="text-xs text-gray-500">(포함)</span></th>
+                  <!-- ✅ 추가 컬럼들 -->
+                  <th class="p-2 border-b text-right whitespace-nowrap">근로소득금액</th>
+                  <th class="p-2 border-b text-center whitespace-nowrap">세율구간</th>
+                  <th class="p-2 border-b text-right whitespace-nowrap">결정세액</th>
                 </tr>
               </thead>
               <tbody id="multi_results" class="text-gray-800"></tbody>
@@ -304,6 +307,7 @@
   <script>
     /* ========== 유틸 ========== */
     function fmt(n){ return new Intl.NumberFormat('ko-KR').format(Math.round(n))+' 원'; }
+    const fmtRaw = n => new Intl.NumberFormat('ko-KR').format(Math.round(n)); // 단위 없는 숫자 포맷
     const fmtPct = n => new Intl.NumberFormat('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}).format(n)+' %';
     const num = el => parseFloat((el.value||'0').replace(/[^\d]/g,''))||0;
     const trunc10 = v => Math.floor(v/10)*10;
@@ -587,7 +591,6 @@
         const tr=document.createElement('tr');
         tr.innerHTML = `
           <td class="p-1.5 sm:p-2 border-b text-left ${(isRate || isFinal || isEmph) ? 'tone font-semibold' : ''}">${k}</td>
-          <!-- ✅ 숫자 셀에 num tnum + nowrap 적용 -->
           <td class="p-1.5 sm:p-2 border-b text-right num tnum ${(isRate || isFinal || isEmph) ? 'tone font-bold' : ''}">
             <span class="nowrap">${isRate ? v : new Intl.NumberFormat('ko-KR').format(v) + ' 원'}</span>
           </td>`;
@@ -680,17 +683,33 @@
       bindComma(netEl); bindComma(ntEl);
       row.querySelector('.remove-row').addEventListener('click', ()=>row.remove());
     }
+
     function calcMulti(){
       if(!tableReady){ statusElMulti && (statusElMulti.textContent='세액표가 아직 준비되지 않았습니다.'); return; }
       multiResults.innerHTML='';
       const rows = Array.from(multiInputs.children);
       if(!rows.length) createRow();
+
       rows.forEach(r=>{
         const netPay = parseFloat((r.querySelector('.net-input').value||'').replace(/[^\d]/g,''))||0;
         const nonTax = parseFloat((r.querySelector('.nontax-input').value||'').replace(/[^\d]/g,''))||0;
         if(netPay<=0) return;
+
         const res = compute(netPay, nonTax);
+
+        // ⬇️ 단일 계산 로직 차용 → (1) 근로소득금액, (2) 세율구간, (3) 결정세액
+        const annualSalary = Math.max(0, Math.round((res.gross - nonTax) * 12));     // 총급여(연)
+        const earnedDed = earnedIncomeDeduction(annualSalary);                        // 근로소득공제
+        const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);                // (1) 근로소득금액
+        const basicDeduction = 1_500_000;
+        const taxBase = Math.max(0, earnedIncomeAmt - basicDeduction);                // 과세표준
+        const { tax: computedIncomeTax, topRate } = incomeTaxProgressive(taxBase);    // 산출세액 & (2) 세율구간
+        const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);
+        const stdCredit = 130_000;
+        const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);     // (3) 결정세액
+
         const exclPct = (res.total_burden_excl/netPay)*100, inclPct = (res.total_burden_incl/netPay)*100;
+
         const tr = document.createElement('tr'); tr.className='border-t';
         tr.innerHTML = `
           <td class="p-2 whitespace-nowrap text-right">${fmt(netPay)}</td>
@@ -702,15 +721,22 @@
           <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_excl)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmtPct(exclPct)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_incl)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>`;
+          <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
+          <!-- ✅ 추가 3칸 -->
+          <td class="p-2 whitespace-nowrap text-right">${fmt(earnedIncomeAmt)}</td>
+          <td class="p-2 whitespace-nowrap text-center">${(topRate*100).toFixed(0)}%</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>`;
         multiResults.appendChild(tr);
       });
+
       if(!multiResults.children.length){
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td colspan="10" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
+        tr.innerHTML=`<td colspan="13" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
         multiResults.appendChild(tr);
       }
     }
+
+    // 초기 행 2개
     createRow(); createRow();
   </script>
 </body>
