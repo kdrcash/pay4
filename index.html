@@ -212,13 +212,22 @@
       <!-- 다중 컨텐츠 -->
       <div id="content_multi" class="hidden">
         <div class="bg-white rounded-2xl p-6 md:p-8 border">
-          <div class="flex items-center justify-between mb-3">
-            <div class="text-sm text-gray-600">여러 개의 <span id="multi_hint_label">실수령액 · 지급총액(입력 기준에 따름)</span> & 비과세 금액을 입력하여 요약 결과를 한 번에 확인하세요.</div>
-            <div class="flex gap-2">
-              <!-- 버튼줄 -->
-              <button id="add_row" class="w-28 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ 행 추가</button>
-              <button id="reset_multi" class="w-28 px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">초기화</button>
-              <button id="calc_multi" class="w-28 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">다중 계산</button>
+
+          <!-- ✅ 모바일-우선 레이아웃: 안내 위, 버튼 아래(세로) → sm 이상 가로 정렬 -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+            <!-- 안내 문구 -->
+            <div class="text-sm text-gray-600 leading-relaxed break-keep">
+              여러 개의 <span id="multi_hint_label">실수령액 · 지급총액(입력 기준에 따름)</span> & 비과세 금액을 입력하여 요약 결과를 한 번에 확인하세요.
+            </div>
+
+            <!-- 버튼 묶음 -->
+            <div class="flex flex-col sm:flex-row gap-2 sm:justify-end">
+              <button id="add_row"
+                      class="w-full sm:w-28 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ 행 추가</button>
+              <button id="reset_multi"
+                      class="w-full sm:w-28 px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">초기화</button>
+              <button id="calc_multi"
+                      class="w-full sm:w-28 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">다중 계산</button>
             </div>
           </div>
 
@@ -345,6 +354,7 @@
   </div>
 
   <script>
+    /* ===================== 공통 상수/포맷터 ===================== */
     const NF_WON = new Intl.NumberFormat('ko-KR');
     const NF_PCT = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
@@ -359,19 +369,25 @@
       e.target.value = d ? NF_WON.format(+d) : '';
     });
 
+    /* ===================== DOM 캐시 ===================== */
     const EL = {
+      // 탭
       tabSingleBtn: document.getElementById('tab_single'),
       tabMultiBtn: document.getElementById('tab_multi'),
       contentSingle: document.getElementById('content_single'),
       contentMulti: document.getElementById('content_multi'),
+      // 입력
       netInput: document.getElementById('net_pay'),
       nonTaxInput: document.getElementById('nontax'),
       primaryInputLabel: document.getElementById('primary_input_label'),
       calcBtn: document.getElementById('calc_btn'),
+      // 상태
       statusSingle: document.getElementById('table_status'),
       statusMulti: document.getElementById('table_status_multi'),
+      // 결과 루트
       result: document.getElementById('result'),
       error: document.getElementById('error_message'),
+      // 요약 카드
       gross: document.getElementById('gross_pay_result'),
       totalDed: document.getElementById('deductions_total_result'),
       annualExcl: document.getElementById('annual_excl'),
@@ -380,32 +396,38 @@
       tbIncl: document.getElementById('total_burden_incl'),
       tbExclPct: document.getElementById('total_burden_excl_pct'),
       tbInclPct: document.getElementById('total_burden_incl_pct'),
+      // 요약 합계
       socialSum: document.getElementById('social_total_summary'),
       withholdSum: document.getElementById('withholding_total_summary'),
       overheadExcl: document.getElementById('overhead_excl_gratuity'),
       gratuity: document.getElementById('gratuity_summary'),
       overheadIncl: document.getElementById('overhead_incl_gratuity'),
+      // 공제 항목
       np: document.getElementById('np_deduction'),
       hi: document.getElementById('hi_deduction'),
       ltc: document.getElementById('ltc_deduction'),
       ei: document.getElementById('ei_deduction'),
       tax: document.getElementById('tax_deduction'),
       ltax: document.getElementById('local_tax_deduction'),
+      // 사업주
       np_er: document.getElementById('np_er'),
       hi_er: document.getElementById('hi_er'),
       ltc_er: document.getElementById('ltc_er'),
       ei_er: document.getElementById('ei_er'),
       wci_er: document.getElementById('wci_er'),
       er_total: document.getElementById('er_total'),
+      // 기준
       baseIns: document.getElementById('base_ins'),
       baseNP: document.getElementById('base_np'),
       baseHI: document.getElementById('base_hi'),
       baseEI: document.getElementById('base_ei'),
       baseTax: document.getElementById('base_tax'),
+      // 연간 표
       annualToggle: document.getElementById('annual_toggle'),
       annualWrap: document.getElementById('annual_wrapper'),
       annualBody: document.getElementById('annual_tax_detail'),
       annualTable: document.getElementById('annual_table'),
+      // 모달(Ver)
       verBtn: document.getElementById('ver_btn'),
       verModal: document.getElementById('ver_modal'),
       verClose: document.getElementById('ver_close'),
@@ -415,11 +437,13 @@
       hiMinLabel: document.getElementById('hi_min_label'),
       hiMaxLabel: document.getElementById('hi_max_label'),
       taxZeroLabel: document.getElementById('tax_zero_label'),
+      // 입력 기준 모달
       inputModeBtn: document.getElementById('input_mode_open'),
       inputModeModal: document.getElementById('input_mode_modal'),
       inputModeClose: document.getElementById('input_mode_close'),
       inputModeApply: document.getElementById('input_mode_apply'),
       inputModeLabel: document.getElementById('input_mode_label'),
+      // 다중
       multiInputs: document.getElementById('multi_inputs'),
       multiResults: document.getElementById('multi_results'),
       addRow: document.getElementById('add_row'),
@@ -429,6 +453,7 @@
       multiHintLabel: document.getElementById('multi_hint_label'),
     };
 
+    /* ===================== 탭 ===================== */
     const ACTIVE = ['text-blue-600','font-bold','border-blue-600'];
     const INACTIVE = ['text-gray-500','border-transparent'];
     const setActive = (a,b,show,hide) => {
@@ -440,6 +465,7 @@
     EL.tabMultiBtn.addEventListener('click',  ()=>setActive(EL.tabMultiBtn, EL.tabSingleBtn, EL.contentMulti, EL.contentSingle));
     setActive(EL.tabSingleBtn, EL.tabMultiBtn, EL.contentSingle, EL.contentMulti);
 
+    /* ===================== 파라미터 ===================== */
     const NP_MIN=400_000, NP_MAX=6_370_000;
     const HI_MIN=279_266, HI_MAX=127_056_982;
     const NP_RATE=0.0450, HI_RATE=0.03545, LTC_RATE=0.1295, EI_RATE=0.0090;
@@ -449,10 +475,12 @@
     const EARNED_DED_CAP = 20_000_000;
     const BASIC_DEDUCTION = 1_500_000;
 
+    /* ===================== 입력 포맷 바인딩 ===================== */
     bindComma(EL.netInput);
     bindComma(EL.nonTaxInput);
     const num = el => onlyNumber(el.value);
 
+    /* ===================== 모달(Ver) ===================== */
     function fillVerModalBounds(){
       EL.npMinLabel.textContent = fmt(NP_MIN);
       EL.npMaxLabel.textContent = fmt(NP_MAX);
@@ -468,6 +496,7 @@
     EL.verModal.addEventListener('click', (e)=>{ const dialog=EL.verModal.querySelector('[role="dialog"]'); if(!dialog.contains(e.target)) closeVerModal(); });
     document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeVerModal(); });
 
+    /* ===================== 입력 기준 모달 ===================== */
     let inputMode = 'net'; // 'net' | 'gross'
     function openInputMode(){ EL.inputModeModal.classList.add('show'); document.body.classList.add('overflow-hidden'); setInputModeRadios(inputMode); }
     function closeInputMode(){ EL.inputModeModal.classList.remove('show'); document.body.classList.remove('overflow-hidden'); }
@@ -484,7 +513,7 @@
       rGross.checked = (mode==='gross');
     }
 
-    // 🔧 기존 행들의 placeholder도 즉시 동기화
+    // 기존 행들의 placeholder 즉시 동기화
     function updateMultiPlaceholders(){
       const ph = (inputMode==='net' ? '실수령액' : '지급총액');
       document.querySelectorAll('#multi_inputs .net-input').forEach(inp=>{
@@ -502,8 +531,9 @@
         EL.primaryInputLabel.textContent = '지급총액 (원)';
         EL.netInput.placeholder = '예: 15,000,000';
       }
-      EL.thMultiCol1.textContent = '실수령액'; // 결과표 1열은 고정
-      updateMultiPlaceholders();               // ✅ 입력칸 placeholder 즉시 반영
+      // 결과표 헤더 1열은 항상 '실수령액' 고정
+      EL.thMultiCol1.textContent = '실수령액';
+      updateMultiPlaceholders();
     }
 
     EL.inputModeApply.addEventListener('click', ()=>{
@@ -513,6 +543,7 @@
       closeInputMode();
     });
 
+    /* ===================== 세액표 로딩 ===================== */
     let TAX_TABLE=[], tableReady=false;
     async function loadTax(){
       const tryFetch = async (path) => {
@@ -535,7 +566,9 @@
     }
     loadTax();
 
+    /* ===================== 간이세액/진행세율 ===================== */
     function lookupTable(x){
+      // 이진탐색
       let lo=0, hi=TAX_TABLE.length-1;
       while(lo<=hi){
         const m=(lo+hi)>>1, row=TAX_TABLE[m];
@@ -547,7 +580,7 @@
     }
     function simplifiedTax(amountExclNT){
       const r=lookupTable(amountExclNT);
-      if(r.found) return trunc10(r.tax);
+      if(r.found) return trunc10(r.tax); // 10원 절사
       const g=amountExclNT, b10=BASE10_1PERSON_RAW;
       let t=b10;
       if(g>10_000_000&&g<=14_000_000) t += 25_000 + 0.35*0.98*(g-10_000_000);
@@ -593,6 +626,7 @@
       return Math.min(credit, Math.floor(cap));
     }
 
+    /* ===================== 공제 계산 유틸 ===================== */
     function baseFromGross(gross, nonTax){
       const baseIns = Math.max(gross - nonTax, 0);
       const baseNP = clamp(Math.floor(baseIns/1000)*1000, NP_MIN, NP_MAX);
@@ -620,10 +654,14 @@
       return { np_er, hi_er, ltc_er, ei_er, wci_er, er_total };
     }
 
+    /* ===================== 핵심 계산(월) ===================== */
     function compute(netPay, nonTax){
       if(!tableReady || netPay<=0) return null;
+      // 초기 근사
       const approxRate = NP_RATE + HI_RATE + (HI_RATE * LTC_RATE) + EI_RATE;
       let gross = netPay / (1 - approxRate);
+
+      // 고정점 반복
       const TOL = 1, MAX_IT = 60;
       for(let i=0;i<MAX_IT;i++){
         const bases = baseFromGross(gross, nonTax);
@@ -632,6 +670,7 @@
         if (Math.abs(newGross - gross) < TOL) { gross = newGross; break; }
         gross = newGross;
       }
+
       return computeFromGross(gross, nonTax, netPay);
     }
 
@@ -640,16 +679,21 @@
       const bases = baseFromGross(gross, nonTax);
       const emp = employeeDeductions(bases);
       const er  = employerDeductions(bases);
+
       const net = (knownNet!=null) ? knownNet : Math.max(0, Math.round(gross - emp.total));
+
       const social_total = (emp.np + emp.hi + emp.ltc + emp.ei) + er.er_total;
       const withholding_total = emp.tax + emp.ltax;
       const gratuity = Math.round(gross / 12);
       const overhead_excl = social_total + withholding_total;
       const overhead_incl = overhead_excl + gratuity;
+
       const total_burden_excl = net + overhead_excl;
       const total_burden_incl = net + overhead_incl;
+
       const annual_excl = Math.round(gross * 12);
       const annual_incl = Math.round(gross * 13);
+
       return {
         net, gross, total: emp.total, annual_excl, annual_incl,
         social_total, withholding_total, overhead_excl, overhead_incl, gratuity,
@@ -658,6 +702,7 @@
       };
     }
 
+    /* ===================== 연간 세금계산내역 ===================== */
     const SUMMARY_KEYS = new Set([
       '총급여', '과세표준', '산출세액', '결정세액',
       '기납부세액(소득세)', '차감징수세액(소득세)', '차감징수지방세(10%)'
@@ -698,6 +743,8 @@
       const data = annualFull ? rows : rows.filter(([k])=>SUMMARY_KEYS.has(k));
       EL.annualToggle.textContent = annualFull ? '요약 보기' : '전체 보기';
       EL.annualToggle.setAttribute('aria-pressed', String(annualFull));
+
+      // 스크롤 박스 제거 → 전체 표시
       EL.annualWrap.classList.remove('scrollbox');
 
       data.forEach(([k, v])=>{
@@ -716,6 +763,7 @@
       return { earnedIncomeAmt, finalIncomeTax, topRate };
     }
 
+    /* ===================== 단일 계산 이벤트 ===================== */
     EL.calcBtn.addEventListener('click', ()=>{
       if(!tableReady){ EL.statusSingle.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
       const primary = num(EL.netInput), nonTax=num(EL.nonTaxInput);
@@ -727,14 +775,14 @@
 
       let r = null;
       if(inputMode==='net'){
-        r = compute(primary, nonTax);
+        r = compute(primary, nonTax);               // 입력=실수령
       }else{
-        r = computeFromGross(primary, nonTax, null);
+        r = computeFromGross(primary, nonTax, null); // 입력=지급총액
       }
       if(!r) return;
       lastResult = r;
 
-      const baseNet = r.net;
+      const baseNet = r.net; // 항상 실제 실수령
       const exclPct = (r.total_burden_excl / Math.max(1, baseNet)) * 100;
       const inclPct = (r.total_burden_incl / Math.max(1, baseNet)) * 100;
 
@@ -781,11 +829,13 @@
       EL.result.classList.remove('hidden');
     });
 
+    // 연간 요약/전체 토글
     EL.annualToggle?.addEventListener('click', () => {
       annualFull = !annualFull;
       if (lastResult) renderAnnual(lastResult);
     });
 
+    /* ===================== 다중 계산 ===================== */
     function createRow(initialPrimary='', initialNT=''){
       const row = document.createElement('div');
       row.className='flex flex-col sm:flex-row gap-2';
@@ -813,6 +863,7 @@
         const nonTax  = onlyNumber(r.querySelector('.nontax-input').value);
         if(primary<=0) return;
 
+        // 계산은 입력 모드에 따라
         const res = (inputMode==='net') ? compute(primary, nonTax) : computeFromGross(primary, nonTax);
         if(!res) return;
 
@@ -825,12 +876,13 @@
         const stdCredit = 130_000;
         const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);
 
-        const baseNet = res.net;
+        const baseNet = res.net; // 실수령 기준
         const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
         const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
 
         const tr = document.createElement('tr'); tr.className='border-t';
         tr.innerHTML = `
+          <!-- 결과표 첫열: 항상 실수령액 -->
           <td class="p-2 whitespace-nowrap text-right">${fmt(res.net)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(nonTax)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(res.gross)}</td>
@@ -854,7 +906,7 @@
       }
     }
 
-    // 🎯 초기화 기능: 입력 행/결과 모두 리셋하고 기본 두 행 생성
+    // 초기화: 행/결과 리셋하고 기본 두 행 생성
     function resetMulti(){
       EL.multiInputs.innerHTML = '';
       EL.multiResults.innerHTML = '';
@@ -866,7 +918,7 @@
     EL.resetMulti.addEventListener('click', resetMulti);
     EL.calcMulti.addEventListener('click', calcMulti);
 
-    // 초기 행
+    // 초기 행 2개
     createRow(); createRow();
 
     // 초기 UI 동기화
