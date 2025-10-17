@@ -54,10 +54,10 @@
             <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
-        <!-- 배너 4: 설문 페이지 -->
+        <!-- 배너 4: 설문 페이지 (URL 오타 복구) -->
         <a href="https://www.kdrcash.kr/survey" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-            <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
       </div>
@@ -211,7 +211,7 @@
       <div id="content_multi" class="hidden">
         <div class="bg-white rounded-2xl p-6 md:p-8 border">
 
-          <!-- [ADD] 대표자 소득세율(%) + 합계세율 표시 -->
+          <!-- 대표자 소득세율(%) + 합계세율 표시 -->
           <div class="mb-4">
             <label for="owner_rate" class="block text-gray-700 font-semibold mb-2">대표자 소득세율(%)</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -229,7 +229,7 @@
             </div>
           </div>
 
-          <!-- 안내 + 버튼 (모바일 세로, sm 이상 가로) -->
+          <!-- 안내 + 버튼 -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <div class="text-sm text-gray-600 leading-relaxed break-keep">
               여러 개의 <span id="multi_hint_label">실수령액 · 지급총액(입력 기준에 따름)</span> & 비과세 금액을 입력하여 요약 결과를 한 번에 확인하세요.
@@ -262,7 +262,7 @@
                   <th class="p-2 border-b text-right whitespace-nowrap">근로소득금액</th>
                   <th class="p-2 border-b text-right whitespace-nowrap tnum">세율구간</th>
                   <th class="p-2 border-b text-right whitespace-nowrap">결정세액</th>
-                  <!-- [ADD] 결정세액 우측 추가 컬럼 -->
+                  <!-- 추가 컬럼 -->
                   <th class="p-2 border-b text-right whitespace-nowrap">실부담액 <span class="text-xs text-gray-500">(퇴직금제외)</span></th>
                   <th class="p-2 border-b text-right whitespace-nowrap">실부담액 <span class="text-xs text-gray-500">(퇴직금포함)</span></th>
                 </tr>
@@ -271,7 +271,7 @@
             </table>
           </div>
 
-          <p id="table_status_multi" class="text:[11px] text-gray-400 mt-2">세액표 준비 상태: 로딩 중…</p>
+          <p id="table_status_multi" class="text-[11px] text-gray-400 mt-2">세액표 준비 상태: 로딩 중…</p>
         </div>
       </div>
     </section>
@@ -455,11 +455,11 @@
       multiResults: document.getElementById('multi_results'),
       addRow: document.getElementById('add_row'),
       resetMulti: document.getElementById('reset_multi'),
-      calcMulti: document.getElementById('calc_multi'),
+      calcMultiBtn: document.getElementById('calc_multi'), /* 버튼 DOM 별도로 캐시 */
       thMultiCol1: document.getElementById('th_multi_col1'),
       multiHintLabel: document.getElementById('multi_hint_label'),
 
-      /* [ADD] 대표자 세율 입력/표시 */
+      /* 대표자 세율 입력/표시 */
       ownerRateInput: document.getElementById('owner_rate'),
       combinedRateOut: document.getElementById('combined_rate'),
       combinedHint: document.getElementById('combined_hint'),
@@ -579,7 +579,6 @@
     loadTax();
 
     /* ========== 세액/공제 계산 ========== */
-    // 간이세액표 조회(미스매칭 구간은 근사식)
     const simplifiedTax = (amountExclNT)=>{
       const lookup = (x)=>{
         let lo=0, hi=TAX_TABLE.length-1;
@@ -604,7 +603,6 @@
       return trunc10(t);
     };
 
-    // 누진세율(연간)
     function incomeTaxProgressive(taxBase){
       const tb = Math.max(0, Math.floor(taxBase));
       let tax=0, rate=0;
@@ -619,7 +617,6 @@
       return { tax: Math.floor(tax), topRate: rate };
     }
 
-    // 근로소득공제(상한 포함)
     function earnedIncomeDeduction(totalSalaryAnnual){
       const x = totalSalaryAnnual;
       let d=0;
@@ -631,7 +628,6 @@
       return Math.min(Math.floor(d), EARNED_DED_CAP);
     }
 
-    // 근로소득세액공제(연간)
     function earnedIncomeTaxCredit(annualSalary, computedIncomeTax){
       let credit = (computedIncomeTax <= 1_300_000)
         ? Math.floor(computedIncomeTax * 0.55)
@@ -644,7 +640,6 @@
       return Math.min(credit, Math.floor(cap));
     }
 
-    // 과세 기준 금액
     function baseFromGross(gross, nonTax){
       const baseIns = Math.max(gross - nonTax, 0);
       const baseNP = clamp(Math.floor(baseIns/1000)*1000, NP_MIN, NP_MAX);
@@ -653,7 +648,6 @@
       return { baseIns, baseNP, baseHI, baseEI, baseTax: baseIns };
     }
 
-    // 근로자 공제
     function employeeDeductions(bases){
       const np  = trunc10(bases.baseNP * NP_RATE);
       const hi  = trunc10(bases.baseHI * HI_RATE);
@@ -665,7 +659,6 @@
       return { np, hi, ltc, ei, tax, ltax, total };
     }
 
-    // 사업주 부담
     function employerDeductions(bases){
       const np_er  = trunc10(bases.baseNP * NP_ER_RATE);
       const hi_er  = trunc10(bases.baseHI * HI_ER_RATE);
@@ -677,13 +670,12 @@
     }
 
     /* ========== 월 계산 ========== */
-    // (실수령 → 지급총액 역산)
     function compute(netPay, nonTax){
       if(!tableReady || netPay<=0) return null;
       const approxRate = NP_RATE + HI_RATE + (HI_RATE * LTC_RATE) + EI_RATE;
-      let gross = netPay / (1 - approxRate);     // 초기 근사
+      let gross = netPay / (1 - approxRate);
       const TOL = 1, MAX_IT = 60;
-      for(let i=0;i<MAX_IT;i++){                 // 고정점 반복
+      for(let i=0;i<MAX_IT;i++){
         const bases = baseFromGross(gross, nonTax);
         const emp = employeeDeductions(bases);
         const newGross = netPay + emp.total;
@@ -693,7 +685,6 @@
       return computeFromGross(gross, nonTax, netPay);
     }
 
-    // (지급총액 → 실수령)
     function computeFromGross(gross, nonTax, knownNet=null){
       if(gross<=0) return null;
       const bases = baseFromGross(gross, nonTax);
@@ -856,12 +847,40 @@
       row.querySelector('.remove-row').addEventListener('click', ()=>row.remove());
     }
 
+    /* === 대표자 합계세율: 소득세율 + 지방세(10%) + (건보+장기요양 '대표자 합계') === */
+    const HEALTH_TOTAL_RATE_OWNER = 2 * HI_RATE * (1 + LTC_RATE); // ≈ 0.08008
+    function parseOwnerRatePct() {
+      const raw = (EL.ownerRateInput?.value || '').replace(/[^\d.]/g, '');
+      const v = parseFloat(raw);
+      return Number.isFinite(v) ? v : 35; // 기본 35%
+    }
+    function calcCombinedRateFraction() {
+      const owner = parseOwnerRatePct() / 100;
+      const local = owner * 0.10;
+      return owner + local + HEALTH_TOTAL_RATE_OWNER;
+    }
+    function renderCombinedRate() {
+      const owner = parseOwnerRatePct() / 100;
+      const local = owner * 0.10;
+      const health = HEALTH_TOTAL_RATE_OWNER;
+      const total = owner + local + health;
+      if (EL.combinedRateOut) EL.combinedRateOut.textContent = fmtPct(total * 100);
+      if (EL.combinedHint) {
+        EL.combinedHint.textContent =
+          `(소득세 ${NF_PCT.format(owner*100)}% + 지방 ${NF_PCT.format(local*100)}% + 건보·장기요양 ${NF_PCT.format(health*100)}%)`;
+      }
+    }
+    EL.ownerRateInput?.addEventListener('input', renderCombinedRate);
+    renderCombinedRate();
+
     function calcMulti(){
       if(!tableReady){ EL.statusMulti.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
       EL.multiResults.innerHTML='';
 
       const rows = Array.from(EL.multiInputs.children);
       if(!rows.length) createRow();
+
+      const combinedRate = calcCombinedRateFraction(); // 대표자 합계세율(분수)
 
       rows.forEach(r=>{
         const primary = onlyNumber(r.querySelector('.net-input').value);
@@ -884,6 +903,9 @@
         const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
         const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
 
+        const realBurdenExcl = Math.round(res.total_burden_excl * (1 - combinedRate));
+        const realBurdenIncl = Math.round(res.total_burden_incl * (1 - combinedRate));
+
         const tr = document.createElement('tr'); tr.className='border-t';
         tr.innerHTML = `
           <td class="p-2 whitespace-nowrap text-right">${fmt(res.net)}</td>
@@ -898,13 +920,15 @@
           <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
           <td class="p-2 whitespace-nowrap text-right">${fmt(earnedIncomeAmt)}</td>
           <td class="p-2 whitespace-nowrap text-right tnum">${(topRate*100).toFixed(0)} %</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>`;
+          <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(realBurdenExcl)}</td>
+          <td class="p-2 whitespace-nowrap text-right">${fmt(realBurdenIncl)}</td>`;
         EL.multiResults.appendChild(tr);
       });
 
       if(!EL.multiResults.children.length){
         const tr=document.createElement('tr');
-        tr.innerHTML=`<td colspan="13" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
+        tr.innerHTML=`<td colspan="15" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
         EL.multiResults.appendChild(tr);
       }
     }
@@ -920,108 +944,11 @@
     // 다중 버튼 이벤트
     EL.addRow.addEventListener('click', ()=>createRow());
     EL.resetMulti.addEventListener('click', resetMulti);
-    EL.calcMulti.addEventListener('click', calcMulti);
+    EL.calcMultiBtn.addEventListener('click', calcMulti);
 
     // 초기 준비
-    createRow(); createRow();        // 기본 2행
-    applyInputModeUI();              // UI 라벨/placeholder 동기화
-
-    /* ===================== [ADD] 대표자 합계세율 계산/표시 + 실부담액 컬럼 패치 ===================== */
-    // 대표자 합계세율: 소득세율 + 지방세(10%) + (건보+장기요양 '대표자 합계' 요율)
-    // '대표자 합계' 요율은 근로자+사업주 기준: 2 * HI_RATE * (1 + LTC_RATE) ≈ 0.08008 (8.008%)
-    const HEALTH_TOTAL_RATE_OWNER = 2 * HI_RATE * (1 + LTC_RATE);
-
-    function parseOwnerRatePct() {
-      const raw = (EL.ownerRateInput?.value || '').replace(/[^\d.]/g, '');
-      const v = parseFloat(raw);
-      return Number.isFinite(v) ? v : 35; // 기본 35%
-    }
-
-    function calcCombinedRateFraction() {
-      const owner = parseOwnerRatePct() / 100;   // 대표자 소득세율
-      const local = owner * 0.10;                 // 지방소득세 10%
-      return owner + local + HEALTH_TOTAL_RATE_OWNER;
-    }
-
-    function renderCombinedRate() {
-      const owner = parseOwnerRatePct() / 100;
-      const local = owner * 0.10;
-      const health = HEALTH_TOTAL_RATE_OWNER;
-      const total = owner + local + health;
-      if (EL.combinedRateOut) EL.combinedRateOut.textContent = fmtPct(total * 100);
-      if (EL.combinedHint) {
-        EL.combinedHint.textContent =
-          `(소득세 ${NF_PCT.format(owner*100)}% + 지방 ${NF_PCT.format(local*100)}% + 건보·장기요양 ${NF_PCT.format(health*100)}%)`;
-      }
-    }
-    EL.ownerRateInput?.addEventListener('input', renderCombinedRate);
-    renderCombinedRate();
-
-    // calcMulti를 패치해서 결정세액 우측에 실부담액 2열을 덧붙임
-    (function patch_calcMulti_to_add_real_burden(){
-      const _orig = calcMulti;
-      calcMulti = function patchedCalcMulti(){
-        if(!tableReady){ EL.statusMulti.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
-        EL.multiResults.innerHTML='';
-
-        const rows = Array.from(EL.multiInputs.children);
-        if(!rows.length) createRow();
-
-        const combinedRate = calcCombinedRateFraction(); // 대표자 합계세율(분수)
-
-        rows.forEach(r=>{
-          const primary = onlyNumber(r.querySelector('.net-input').value);
-          const nonTax  = onlyNumber(r.querySelector('.nontax-input').value);
-          if(primary<=0) return;
-
-          const res = (inputMode==='net') ? compute(primary, nonTax) : computeFromGross(primary, nonTax);
-          if(!res) return;
-
-          const annualSalary = Math.max(0, Math.round((res.gross - nonTax) * 12));
-          const earnedDed = earnedIncomeDeduction(annualSalary);
-          const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);
-          const taxBase = Math.max(0, earnedIncomeAmt - BASIC_DEDUCTION);
-          const { topRate, tax: computedIncomeTax } = incomeTaxProgressive(taxBase);
-          const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);
-          const stdCredit = 130_000;
-          const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);
-
-          const baseNet = res.net;
-          const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
-          const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
-
-          // 실부담액 계산
-          const realBurdenExcl = Math.round(res.total_burden_excl * (1 - combinedRate));
-          const realBurdenIncl = Math.round(res.total_burden_incl * (1 - combinedRate));
-
-          const tr = document.createElement('tr'); tr.className='border-t';
-          tr.innerHTML = `
-            <td class="p-2 whitespace-nowrap text-right">${fmt(res.net)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(nonTax)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(res.gross)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(res.total)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(Math.round(res.gross*12))}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(Math.round(res.gross*13))}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_excl)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmtPct(exclPct)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_incl)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(earnedIncomeAmt)}</td>
-            <td class="p-2 whitespace-nowrap text-right tnum">${(topRate*100).toFixed(0)} %</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>
-            <!-- [ADD] 실부담액 2열 -->
-            <td class="p-2 whitespace-nowrap text-right">${fmt(realBurdenExcl)}</td>
-            <td class="p-2 whitespace-nowrap text-right">${fmt(realBurdenIncl)}</td>`;
-          EL.multiResults.appendChild(tr);
-        });
-
-        if(!EL.multiResults.children.length){
-          const tr=document.createElement('tr');
-          tr.innerHTML=`<td colspan="15" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
-          EL.multiResults.appendChild(tr);
-        }
-      };
-    })();
+    createRow(); createRow();
+    applyInputModeUI();
   </script>
 </body>
 </html>
