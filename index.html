@@ -54,7 +54,7 @@
             <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
-        <!-- 배너 4: 설문 페이지 (URL 오타 복구) -->
+        <!-- 배너 4: 설문 페이지 -->
         <a href="https://www.kdrcash.kr/survey" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
             <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
@@ -62,7 +62,6 @@
         </a>
       </div>
     </div>
-
 
     <!-- 본문 -->
     <section class="card p-6">
@@ -211,7 +210,7 @@
       <div id="content_multi" class="hidden">
         <div class="bg-white rounded-2xl p-6 md:p-8 border">
 
-          <!-- 대표자 소득세율(%) + 합계세율 표시 -->
+          <!-- 대표자 소득세율(%) + 합계 세율 표시 -->
           <div class="mb-4">
             <label for="owner_rate" class="block text-gray-700 font-semibold mb-2">대표자 소득세율(%)</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -222,14 +221,13 @@
                 <span class="text-sm text-gray-600">%</span>
               </div>
               <div class="text-sm text-gray-600">
-                합계 세율:
-                <b id="combined_rate" class="text-gray-900 tnum">- %</b>
+                합계 세율: <b id="combined_rate" class="text-gray-900 tnum">- %</b>
                 <span id="combined_hint" class="text-[11px] text-gray-500 ml-1"></span>
               </div>
             </div>
           </div>
 
-          <!-- 안내 + 버튼 -->
+          <!-- 안내 + 버튼 (모바일 세로, sm 이상 가로) -->
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             <div class="text-sm text-gray-600 leading-relaxed break-keep">
               여러 개의 <span id="multi_hint_label">실수령액 · 지급총액(입력 기준에 따름)</span> & 비과세 금액을 입력하여 요약 결과를 한 번에 확인하세요.
@@ -455,11 +453,10 @@
       multiResults: document.getElementById('multi_results'),
       addRow: document.getElementById('add_row'),
       resetMulti: document.getElementById('reset_multi'),
-      calcMultiBtn: document.getElementById('calc_multi'), /* 버튼 DOM 별도로 캐시 */
+      calcMulti: document.getElementById('calc_multi'),
       thMultiCol1: document.getElementById('th_multi_col1'),
       multiHintLabel: document.getElementById('multi_hint_label'),
-
-      /* 대표자 세율 입력/표시 */
+      /* 추가 */
       ownerRateInput: document.getElementById('owner_rate'),
       combinedRateOut: document.getElementById('combined_rate'),
       combinedHint: document.getElementById('combined_hint'),
@@ -487,6 +484,36 @@
     const EARNED_DED_CAP = 20_000_000;
     const BASIC_DEDUCTION = 1_500_000;
 
+    /* ========== 대표자 합계세율 계산(요청 반영) ========== */
+    // 대표자 관점: (소득세율 + 지방세(10%)) + (건보 + 장기요양의 회사+근로자 합계)
+    const HEALTH_TOTAL_RATE_OWNER = 2 * HI_RATE * (1 + LTC_RATE); // ≈ 0.08008 (예: 8.008%)
+
+    function parseOwnerRatePct() {
+      const raw = (EL.ownerRateInput?.value || '').replace(/[^\d.]/g, '');
+      const v = parseFloat(raw);
+      return Number.isFinite(v) ? v : 35; // 기본 35%
+    }
+
+    function calcCombinedRateFraction() {
+      const owner = parseOwnerRatePct() / 100;
+      const local = owner * 0.10; // 지방소득세
+      return owner + local + HEALTH_TOTAL_RATE_OWNER;
+    }
+
+    function renderCombinedRate() {
+      const owner = parseOwnerRatePct() / 100;
+      const local = owner * 0.10;
+      const health = HEALTH_TOTAL_RATE_OWNER;
+      const total = owner + local + health;
+      if (EL.combinedRateOut) EL.combinedRateOut.textContent = (total * 100).toFixed(1) + ' %';
+      if (EL.combinedHint) {
+        EL.combinedHint.textContent =
+          `(소득세 ${ (owner*100).toFixed(1)}% + 지방 ${ (local*100).toFixed(1)}% + 건보·장기요양 ${ (health*100).toFixed(2)}%)`;
+      }
+    }
+    EL.ownerRateInput?.addEventListener('input', renderCombinedRate);
+    renderCombinedRate();
+
     /* ========== 입력 포맷 바인딩 ========== */
     bindComma(EL.netInput);
     bindComma(EL.nonTaxInput);
@@ -494,11 +521,11 @@
 
     /* ========== Ver 모달 ========== */
     function fillVerModalBounds(){
-      EL.npMinLabel.textContent = fmt(NP_MIN);
-      EL.npMaxLabel.textContent = fmt(NP_MAX);
-      EL.hiMinLabel.textContent = fmt(HI_MIN);
-      EL.hiMaxLabel.textContent = fmt(HI_MAX);
-      EL.taxZeroLabel.textContent = fmt(TAX_ZERO_THRESHOLD);
+      document.getElementById('np_min_label').textContent = fmt(NP_MIN);
+      document.getElementById('np_max_label').textContent = fmt(NP_MAX);
+      document.getElementById('hi_min_label').textContent = fmt(HI_MIN);
+      document.getElementById('hi_max_label').textContent = fmt(HI_MAX);
+      document.getElementById('tax_zero_label').textContent = fmt(TAX_ZERO_THRESHOLD);
     }
     function openVerModal(){ fillVerModalBounds(); EL.verModal.classList.remove('hidden'); EL.verModal.classList.add('flex'); document.body.classList.add('overflow-hidden'); }
     function closeVerModal(){ EL.verModal.classList.add('hidden'); EL.verModal.classList.remove('flex'); document.body.classList.remove('overflow-hidden'); }
@@ -525,7 +552,7 @@
       rGross.checked = (mode==='gross');
     }
 
-    // 다중 입력칸의 placeholder를 모드에 맞춰 갱신
+    // 다중 입력칸 placeholder 모드 반영
     function updateMultiPlaceholders(){
       const ph = (inputMode==='net' ? '실수령액' : '지급총액');
       document.querySelectorAll('#multi_inputs .net-input').forEach(inp=>{
@@ -579,6 +606,7 @@
     loadTax();
 
     /* ========== 세액/공제 계산 ========== */
+    // 간이세액표 조회(미스매칭 구간은 근사식)
     const simplifiedTax = (amountExclNT)=>{
       const lookup = (x)=>{
         let lo=0, hi=TAX_TABLE.length-1;
@@ -603,6 +631,7 @@
       return trunc10(t);
     };
 
+    // 누진세율(연간)
     function incomeTaxProgressive(taxBase){
       const tb = Math.max(0, Math.floor(taxBase));
       let tax=0, rate=0;
@@ -617,6 +646,7 @@
       return { tax: Math.floor(tax), topRate: rate };
     }
 
+    // 근로소득공제(상한 포함)
     function earnedIncomeDeduction(totalSalaryAnnual){
       const x = totalSalaryAnnual;
       let d=0;
@@ -628,6 +658,7 @@
       return Math.min(Math.floor(d), EARNED_DED_CAP);
     }
 
+    // 근로소득세액공제(연간)
     function earnedIncomeTaxCredit(annualSalary, computedIncomeTax){
       let credit = (computedIncomeTax <= 1_300_000)
         ? Math.floor(computedIncomeTax * 0.55)
@@ -640,6 +671,7 @@
       return Math.min(credit, Math.floor(cap));
     }
 
+    // 과세 기준 금액
     function baseFromGross(gross, nonTax){
       const baseIns = Math.max(gross - nonTax, 0);
       const baseNP = clamp(Math.floor(baseIns/1000)*1000, NP_MIN, NP_MAX);
@@ -648,6 +680,7 @@
       return { baseIns, baseNP, baseHI, baseEI, baseTax: baseIns };
     }
 
+    // 근로자 공제
     function employeeDeductions(bases){
       const np  = trunc10(bases.baseNP * NP_RATE);
       const hi  = trunc10(bases.baseHI * HI_RATE);
@@ -659,6 +692,7 @@
       return { np, hi, ltc, ei, tax, ltax, total };
     }
 
+    // 사업주 부담
     function employerDeductions(bases){
       const np_er  = trunc10(bases.baseNP * NP_ER_RATE);
       const hi_er  = trunc10(bases.baseHI * HI_ER_RATE);
@@ -670,12 +704,13 @@
     }
 
     /* ========== 월 계산 ========== */
+    // (실수령 → 지급총액 역산)
     function compute(netPay, nonTax){
       if(!tableReady || netPay<=0) return null;
       const approxRate = NP_RATE + HI_RATE + (HI_RATE * LTC_RATE) + EI_RATE;
-      let gross = netPay / (1 - approxRate);
+      let gross = netPay / (1 - approxRate);     // 초기 근사
       const TOL = 1, MAX_IT = 60;
-      for(let i=0;i<MAX_IT;i++){
+      for(let i=0;i<MAX_IT;i++){                 // 고정점 반복
         const bases = baseFromGross(gross, nonTax);
         const emp = employeeDeductions(bases);
         const newGross = netPay + emp.total;
@@ -685,6 +720,7 @@
       return computeFromGross(gross, nonTax, netPay);
     }
 
+    // (지급총액 → 실수령)
     function computeFromGross(gross, nonTax, knownNet=null){
       if(gross<=0) return null;
       const bases = baseFromGross(gross, nonTax);
@@ -847,32 +883,6 @@
       row.querySelector('.remove-row').addEventListener('click', ()=>row.remove());
     }
 
-    /* === 대표자 합계세율: 소득세율 + 지방세(10%) + (건보+장기요양 '대표자 합계') === */
-    const HEALTH_TOTAL_RATE_OWNER = 2 * HI_RATE * (1 + LTC_RATE); // ≈ 0.08008
-    function parseOwnerRatePct() {
-      const raw = (EL.ownerRateInput?.value || '').replace(/[^\d.]/g, '');
-      const v = parseFloat(raw);
-      return Number.isFinite(v) ? v : 35; // 기본 35%
-    }
-    function calcCombinedRateFraction() {
-      const owner = parseOwnerRatePct() / 100;
-      const local = owner * 0.10;
-      return owner + local + HEALTH_TOTAL_RATE_OWNER;
-    }
-    function renderCombinedRate() {
-      const owner = parseOwnerRatePct() / 100;
-      const local = owner * 0.10;
-      const health = HEALTH_TOTAL_RATE_OWNER;
-      const total = owner + local + health;
-      if (EL.combinedRateOut) EL.combinedRateOut.textContent = fmtPct(total * 100);
-      if (EL.combinedHint) {
-        EL.combinedHint.textContent =
-          `(소득세 ${NF_PCT.format(owner*100)}% + 지방 ${NF_PCT.format(local*100)}% + 건보·장기요양 ${NF_PCT.format(health*100)}%)`;
-      }
-    }
-    EL.ownerRateInput?.addEventListener('input', renderCombinedRate);
-    renderCombinedRate();
-
     function calcMulti(){
       if(!tableReady){ EL.statusMulti.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
       EL.multiResults.innerHTML='';
@@ -880,7 +890,8 @@
       const rows = Array.from(EL.multiInputs.children);
       if(!rows.length) createRow();
 
-      const combinedRate = calcCombinedRateFraction(); // 대표자 합계세율(분수)
+      // 대표자 합계세율(분수) 한 번만 계산
+      const combinedRate = calcCombinedRateFraction();
 
       rows.forEach(r=>{
         const primary = onlyNumber(r.querySelector('.net-input').value);
@@ -903,6 +914,7 @@
         const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
         const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
 
+        // 실부담액 계산: 총부담 × (1 - 합계세율)
         const realBurdenExcl = Math.round(res.total_burden_excl * (1 - combinedRate));
         const realBurdenIncl = Math.round(res.total_burden_incl * (1 - combinedRate));
 
@@ -944,11 +956,11 @@
     // 다중 버튼 이벤트
     EL.addRow.addEventListener('click', ()=>createRow());
     EL.resetMulti.addEventListener('click', resetMulti);
-    EL.calcMultiBtn.addEventListener('click', calcMulti);
+    EL.calcMulti.addEventListener('click', calcMulti);
 
     // 초기 준비
-    createRow(); createRow();
-    applyInputModeUI();
+    createRow(); createRow();        // 기본 2행
+    applyInputModeUI();              // UI 라벨/placeholder 동기화
   </script>
 </body>
 </html>
