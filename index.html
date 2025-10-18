@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>네트급여 계산기</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS (Excel) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background:#f3f4f6 }
     .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
@@ -36,25 +38,21 @@
     <!-- 상단 배너 (홍보용 이미지 링크 4개) -->
     <div class="px-4 sm:px-5 mb-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- 배너 1: 메인 사이트 -->
         <a href="https://www.kdrcash.kr/" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
             <img src="https://github.com/kdrcash/pay/blob/main/%EB%B3%91%EC%9D%98%EC%9B%90%20%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B6%84%EC%84%9D%20%ED%94%8C%EB%9E%AB%ED%8F%BC%20%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
-        <!-- 배너 2: 메인 사이트 -->
         <a href="https://www.kdrcash.kr/" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
             <img src="https://github.com/kdrcash/pay/blob/main/%ED%95%9C%EA%B5%AD%EB%B3%91%EC%9D%98%EC%9B%90%EB%8D%B0%EC%9D%B4%ED%84%B0.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
-        <!-- 배너 3: 다운로드 페이지 -->
         <a href="https://www.kdrcash.kr/download" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
             <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
-        <!-- 배너 4: 설문 페이지 -->
         <a href="https://www.kdrcash.kr/survey" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
             <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
@@ -89,6 +87,10 @@
                 합계 세율: <b id="combined_rate_single" class="text-gray-900 tnum">- %</b>
                 <span id="combined_hint_single" class="text-[11px] text-gray-500 ml-1"></span>
               </div>
+              <!-- 단일: 엑셀 버튼 -->
+              <button id="export_single_btn" type="button"
+                      class="ml-auto px-3 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50"
+                      disabled>엑셀로 내보내기</button>
             </div>
           </div>
 
@@ -255,6 +257,10 @@
                 합계 세율: <b id="combined_rate" class="text-gray-900 tnum">- %</b>
                 <span id="combined_hint" class="text-[11px] text-gray-500 ml-1"></span>
               </div>
+              <!-- 다중: 엑셀 버튼 -->
+              <button id="export_multi_btn" type="button"
+                      class="ml-auto px-3 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-50"
+                      title="표에 출력된 다중 계산 결과를 엑셀로 저장">엑셀로 내보내기</button>
             </div>
           </div>
 
@@ -299,7 +305,7 @@
             </table>
           </div>
 
-          <p id="table_status_multi" class="text-[11px] text-gray-400 mt-2">세액표 준비 상태: 로딩 중…</p>
+          <p id="table_status_multi" class="text:[11px] text-gray-400 mt-2">세액표 준비 상태: 로딩 중…</p>
         </div>
       </div>
     </section>
@@ -309,16 +315,12 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <a href="https://www.kdrcash.kr/download" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-            <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90"
-                 alt
-                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EB%8B%A5%ED%84%B0%EC%BA%90%EC%8B%9C%20%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
         <a href="https://www.kdrcash.kr/survey" target="_blank" rel="noopener noreferrer" class="block group">
           <div class="relative w-full aspect-[4/1] rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-            <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90"
-                 alt
-                 class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
+            <img src="https://github.com/kdrcash/pay/blob/main/%EA%B0%9C%EC%9B%90%EA%B4%80%EB%A0%A8%20%ED%95%84%EC%88%98%EC%9E%90%EB%A3%8C%20%EB%AA%A8%EC%9D%8C.png?raw=true" alt class="absolute inset-0 w-full h-full object-cover transition duration-200 group-hover:opacity-90">
           </div>
         </a>
       </div>
@@ -497,6 +499,9 @@
       /* 추가: 절세액 표시 요소 */
       realBurdenExclSaving: document.getElementById('real_burden_excl_saving'),
       realBurdenInclSaving: document.getElementById('real_burden_incl_saving'),
+      /* 엑셀 버튼 */
+      exportSingleBtn: document.getElementById('export_single_btn'),
+      exportMultiBtn: document.getElementById('export_multi_btn'),
     };
 
     /* ========== 탭 전환 ========== */
@@ -522,7 +527,6 @@
     const BASIC_DEDUCTION = 1_500_000;
 
     /* ========== 대표자 합계세율 계산(공통 로직) ========== */
-    // (회사+근로자) 건보 + 장기요양 합계: 2 * HI_RATE * (1 + LTC_RATE)
     const HEALTH_TOTAL_RATE_OWNER = 2 * HI_RATE * (1 + LTC_RATE); // ≈ 0.08008 (8.008%)
 
     // 다중 탭용
@@ -613,7 +617,6 @@
       rGross.checked = (mode==='gross');
     }
 
-    // 다중 입력칸 placeholder 모드 반영
     function updateMultiPlaceholders(){
       const ph = (inputMode==='net' ? '실수령액' : '지급총액');
       document.querySelectorAll('#multi_inputs .net-input').forEach(inp=>{
@@ -621,7 +624,6 @@
       });
     }
 
-    // 상단 라벨/placeholder 및 다중 표 헤더 동기화
     function applyInputModeUI(){
       if(inputMode==='net'){
         EL.inputModeLabel.textContent = '실수령';
@@ -632,7 +634,7 @@
         EL.primaryInputLabel.textContent = '지급총액 (원)';
         EL.netInput.placeholder = '예: 15,000,000';
       }
-      EL.thMultiCol1.textContent = '실수령액'; // 결과 1열은 항상 실수령액
+      EL.thMultiCol1.textContent = '실수령액';
       updateMultiPlaceholders();
     }
 
@@ -667,7 +669,6 @@
     loadTax();
 
     /* ========== 세액/공제 계산 ========== */
-    // 간이세액표 조회(미스매칭 구간은 근사식)
     const simplifiedTax = (amountExclNT)=>{
       const lookup = (x)=>{
         let lo=0, hi=TAX_TABLE.length-1;
@@ -692,7 +693,6 @@
       return trunc10(t);
     };
 
-    // 누진세율(연간)
     function incomeTaxProgressive(taxBase){
       const tb = Math.max(0, Math.floor(taxBase));
       let tax=0, rate=0;
@@ -707,7 +707,6 @@
       return { tax: Math.floor(tax), topRate: rate };
     }
 
-    // 근로소득공제(상한 포함)
     function earnedIncomeDeduction(totalSalaryAnnual){
       const x = totalSalaryAnnual;
       let d=0;
@@ -719,7 +718,6 @@
       return Math.min(Math.floor(d), EARNED_DED_CAP);
     }
 
-    // 근로소득세액공제(연간)
     function earnedIncomeTaxCredit(annualSalary, computedIncomeTax){
       let credit = (computedIncomeTax <= 1_300_000)
         ? Math.floor(computedIncomeTax * 0.55)
@@ -732,7 +730,6 @@
       return Math.min(credit, Math.floor(cap));
     }
 
-    // 과세 기준 금액
     function baseFromGross(gross, nonTax){
       const baseIns = Math.max(gross - nonTax, 0);
       const baseNP = clamp(Math.floor(baseIns/1000)*1000, NP_MIN, NP_MAX);
@@ -741,7 +738,6 @@
       return { baseIns, baseNP, baseHI, baseEI, baseTax: baseIns };
     }
 
-    // 근로자 공제
     function employeeDeductions(bases){
       const np  = trunc10(bases.baseNP * NP_RATE);
       const hi  = trunc10(bases.baseHI * HI_RATE);
@@ -753,7 +749,6 @@
       return { np, hi, ltc, ei, tax, ltax, total };
     }
 
-    // 사업주 부담
     function employerDeductions(bases){
       const np_er  = trunc10(bases.baseNP * NP_ER_RATE);
       const hi_er  = trunc10(bases.baseHI * HI_ER_RATE);
@@ -765,11 +760,10 @@
     }
 
     /* ========== 월 계산 ========== */
-    // (실수령 → 지급총액 역산)
     function compute(netPay, nonTax){
       if(!tableReady || netPay<=0) return null;
       const approxRate = NP_RATE + HI_RATE + (HI_RATE * LTC_RATE) + EI_RATE;
-      let gross = netPay / (1 - approxRate);     // 초기 근사
+      let gross = netPay / (1 - approxRate);
       const TOL = 1, MAX_IT = 60;
       for(let i=0;i<MAX_IT;i++){
         const bases = baseFromGross(gross, nonTax);
@@ -781,7 +775,6 @@
       return computeFromGross(gross, nonTax);
     }
 
-    // (지급총액 → 실수령)
     function computeFromGross(gross, nonTax, knownNet=null){
       if(gross<=0) return null;
       const bases = baseFromGross(gross, nonTax);
@@ -890,18 +883,16 @@
       EL.tbExclPct.textContent = fmtPct(exclPct);
       EL.tbInclPct.textContent = fmtPct(inclPct);
 
-      // (추가) 단일 탭 실부담액 계산
+      // (추가) 단일 탭 실부담액 + 절세액
       const combinedRateSingle = calcCombinedRateFractionSingle();
       const realExcl = Math.round(r.total_burden_excl * (1 - combinedRateSingle));
       const realIncl = Math.round(r.total_burden_incl * (1 - combinedRateSingle));
-      if (EL.realBurdenExclSingle) EL.realBurdenExclSingle.textContent = fmt(realExcl);
-      if (EL.realBurdenInclSingle) EL.realBurdenInclSingle.textContent = fmt(realIncl);
-
-      // (추가) 절세액 = 총부담액 × 합계세율
+      EL.realBurdenExclSingle.textContent = fmt(realExcl);
+      EL.realBurdenInclSingle.textContent = fmt(realIncl);
       const savingExcl = Math.round(r.total_burden_excl * combinedRateSingle);
       const savingIncl = Math.round(r.total_burden_incl * combinedRateSingle);
-      if (EL.realBurdenExclSaving) EL.realBurdenExclSaving.textContent = NF_WON.format(savingExcl) + '원';
-      if (EL.realBurdenInclSaving) EL.realBurdenInclSaving.textContent = NF_WON.format(savingIncl) + '원';
+      EL.realBurdenExclSaving.textContent = NF_WON.format(savingExcl) + '원';
+      EL.realBurdenInclSaving.textContent = NF_WON.format(savingIncl) + '원';
 
       EL.annualExcl.textContent = fmt(r.annual_excl);
       EL.annualIncl.textContent = fmt(r.annual_incl);
@@ -933,6 +924,9 @@
 
       EL.error.classList.add('hidden');
       EL.result.classList.remove('hidden');
+
+      // 단일 엑셀 버튼 활성화
+      EL.exportSingleBtn.disabled = false;
     });
 
     // 연간표 토글
@@ -964,7 +958,6 @@
       const rows = Array.from(EL.multiInputs.children);
       if(!rows.length) createRow();
 
-      // 대표자 합계세율(분수)
       const combinedRate = calcCombinedRateFraction();
 
       rows.forEach(r=>{
@@ -988,7 +981,6 @@
         const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
         const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
 
-        // 실부담액: 총부담 × (1 - 합계세율)
         const realBurdenExcl = Math.round(res.total_burden_excl * (1 - combinedRate));
         const realBurdenIncl = Math.round(res.total_burden_incl * (1 - combinedRate));
 
@@ -1019,7 +1011,6 @@
       }
     }
 
-    // 다중 초기화
     function resetMulti(){
       EL.multiInputs.innerHTML = '';
       EL.multiResults.innerHTML = '';
@@ -1027,14 +1018,143 @@
       updateMultiPlaceholders();
     }
 
-    // 다중 버튼 이벤트
     EL.addRow.addEventListener('click', ()=>createRow());
     EL.resetMulti.addEventListener('click', resetMulti);
     EL.calcMulti.addEventListener('click', calcMulti);
 
     // 초기 준비
-    createRow(); createRow();        // 기본 2행
-    applyInputModeUI();              // UI 라벨/placeholder 동기화
+    createRow(); createRow();
+    applyInputModeUI();
+
+    /* ========== 엑셀 내보내기: 단일 결과 ========== */
+    function exportSingleToExcel(){
+      if(!lastResult){ return; }
+      const now = new Date();
+      const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+
+      const combinedRate = calcCombinedRateFractionSingle();
+      const savingExcl = Math.round(lastResult.total_burden_excl * combinedRate);
+      const savingIncl = Math.round(lastResult.total_burden_incl * combinedRate);
+      const realExcl  = Math.round(lastResult.total_burden_excl * (1 - combinedRate));
+      const realIncl  = Math.round(lastResult.total_burden_incl * (1 - combinedRate));
+
+      // 시트1: 월/요약
+      const sheet1 = [
+        ['입력 기준', inputMode==='net' ? '실수령' : '지급총액'],
+        ['대표자 합계세율(%)', (combinedRate*100).toFixed(2)],
+        [],
+        ['실수령액', lastResult.net],
+        ['비과세(월)', lastResult.nonTax],
+        ['지급총액', lastResult.gross],
+        ['공제합계(근로자)', lastResult.total],
+        [],
+        ['연봉(퇴직금 제외)', lastResult.annual_excl],
+        ['연봉(퇴직금 포함)', lastResult.annual_incl],
+        [],
+        ['총부담(퇴직금 제외)', lastResult.total_burden_excl],
+        ['총부담(퇴직금 포함)', lastResult.total_burden_incl],
+        ['실부담(퇴직금 제외)', realExcl],
+        ['실부담(퇴직금 포함)', realIncl],
+        ['절세액(제외)', savingExcl],
+        ['절세액(포함)', savingIncl],
+        [],
+        ['4대보험(근로자+사업주)', lastResult.social_total],
+        ['원천세(소득세+지방세)', lastResult.withholding_total],
+        ['부대비용 총액(퇴직금 제외)', lastResult.overhead_excl],
+        ['퇴직금(월지급총액의 1/12)', lastResult.gratuity],
+        ['부대비용 총액(퇴직금 포함)', lastResult.overhead_incl],
+      ];
+
+      // 시트2: 공제 상세
+      const sheet2 = [
+        ['구분','금액'],
+        ['국민연금(근로자)', lastResult.np],
+        ['건강보험(근로자)', lastResult.hi],
+        ['장기요양(근로자)', lastResult.ltc],
+        ['고용보험(근로자)', lastResult.ei],
+        ['소득세', lastResult.tax],
+        ['지방소득세', lastResult.ltax],
+        [],
+        ['국민연금(사업주)', lastResult.np_er],
+        ['건강보험(사업주)', lastResult.hi_er],
+        ['장기요양(사업주)', lastResult.ltc_er],
+        ['고용보험(사업주)', lastResult.ei_er],
+        ['산재보험(사업주)', lastResult.wci_er],
+        ['4대보험 사업주 부담 합계', lastResult.er_total],
+        [],
+        ['보수월액(비과세 제외)', lastResult.baseIns],
+        ['국민연금 기준소득(천원단위)', lastResult.baseNP],
+        ['건강보험 산정기준', lastResult.baseHI],
+        ['고용보험 산정기준', lastResult.baseEI],
+        ['간이세액표 기준금액', lastResult.baseTax],
+      ];
+
+      // 시트3: 연간표 (현재 화면에 보이는 모드 – 요약/전체 반영)
+      const tableRows = Array.from(EL.annualBody.querySelectorAll('tr'));
+      const sheet3 = [['구분','금액']];
+      tableRows.forEach(tr=>{
+        const tds = tr.querySelectorAll('td');
+        const k = tds[0]?.innerText?.trim() ?? '';
+        const vText = tds[1]?.innerText?.replace(/[^\d\-]/g,'') ?? '0';
+        const v = Number(vText) || 0;
+        sheet3.push([k, v]);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.aoa_to_sheet(sheet1);
+      const ws2 = XLSX.utils.aoa_to_sheet(sheet2);
+      const ws3 = XLSX.utils.aoa_to_sheet(sheet3);
+      XLSX.utils.book_append_sheet(wb, ws1, '요약(단일)');
+      XLSX.utils.book_append_sheet(wb, ws2, '공제상세');
+      XLSX.utils.book_append_sheet(wb, ws3, '연간내역');
+
+      XLSX.writeFile(wb, `네트급여_단일_${y}${m}${d}.xlsx`);
+    }
+    EL.exportSingleBtn.addEventListener('click', exportSingleToExcel);
+
+    /* ========== 엑셀 내보내기: 다중 결과표 ========== */
+    function exportMultiToExcel(){
+      const rows = Array.from(EL.multiResults.querySelectorAll('tr'));
+      if(!rows.length || rows[0].querySelector('td[colspan]')){ // '유효한 입력이 없습니다.' 행
+        alert('내보낼 다중 결과가 없습니다. 먼저 "다중 계산"을 눌러주세요.');
+        return;
+      }
+      const now = new Date();
+      const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+
+      // 헤더 텍스트 수집
+      const headerCells = Array.from(document.querySelector('#content_multi thead tr').children);
+      const headers = headerCells.map(th => th.innerText.replace(/\s+/g,' ').trim());
+
+      const data = [headers];
+      rows.forEach(tr=>{
+        const tds = Array.from(tr.children);
+        const row = tds.map(td=>{
+          // 셀 안의 숫자만 추출 (원/퍼센트 제거)
+          const txt = td.innerText.trim();
+          if (txt.endsWith('%')) return Number(txt.replace(/[^\d.\-]/g,'')) || txt;
+          const num = Number(txt.replace(/[^\d\-]/g,''));
+          return Number.isFinite(num) && txt.includes('원') ? num : txt;
+        });
+        data.push(row);
+      });
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, '다중결과');
+
+      // 보조 시트: 설정값
+      const combinedRate = calcCombinedRateFraction();
+      const meta = [
+        ['입력 기준', inputMode==='net' ? '실수령' : '지급총액'],
+        ['대표자 합계세율(%)', (combinedRate*100).toFixed(2)],
+        ['행 개수', rows.length]
+      ];
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(meta), '메타');
+
+      XLSX.writeFile(wb, `네트급여_다중_${y}${m}${d}.xlsx`);
+    }
+    EL.exportMultiBtn.addEventListener('click', exportMultiToExcel);
   </script>
 </body>
 </html>
