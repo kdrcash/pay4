@@ -154,6 +154,8 @@
                 <div class="text-gray-700 font-medium">실부담액(퇴직금 제외)</div>
                 <div id="real_burden_excl_single" class="font-semibold text-gray-900 mt-1"></div>
               </div>
+    		<div class="text-[11px] text-gray-500 mt-1">절세액 <span id="real_burden_excl_saving" class="tnum"></span> 반영</div>
+ 	      </div>
               <div class="bg-white rounded-lg border p-3">
                 <div class="text-gray-700 font-medium">실부담액(퇴직금 포함)</div>
                 <div id="real_burden_incl_single" class="font-semibold text-gray-900 mt-1"></div>
@@ -492,6 +494,9 @@
       /* 추가: 단일 탭 실부담액 출력 */
       realBurdenExclSingle: document.getElementById('real_burden_excl_single'),
       realBurdenInclSingle: document.getElementById('real_burden_incl_single'),
+      /* 추가: 절세액 표시 요소 */
+      realBurdenExclSaving: document.getElementById('real_burden_excl_saving'),
+      realBurdenInclSaving: document.getElementById('real_burden_incl_saving'),
     };
 
     /* ========== 탭 전환 ========== */
@@ -891,6 +896,11 @@
       const realIncl = Math.round(r.total_burden_incl * (1 - combinedRateSingle));
       if (EL.realBurdenExclSingle) EL.realBurdenExclSingle.textContent = fmt(realExcl);
       if (EL.realBurdenInclSingle) EL.realBurdenInclSingle.textContent = fmt(realIncl);
+        // (추가) 절세액 = 총부담액 × 합계세율
+      const savingExcl = Math.round(r.total_burden_excl * combinedRateSingle);
+      const savingIncl = Math.round(r.total_burden_incl * combinedRateSingle);
+      if (EL.realBurdenExclSaving) EL.realBurdenExclSaving.textContent = NF_WON.format(savingExcl) + '원';
+      if (EL.realBurdenInclSaving) EL.realBurdenInclSaving.textContent = NF_WON.format(savingIncl) + '원';
 
       EL.annualExcl.textContent = fmt(r.annual_excl);
       EL.annualIncl.textContent = fmt(r.annual_incl);
