@@ -35,7 +35,7 @@
       </div>
     </section>
 
-    <!-- 상단 배너 (홍보용 이미지 링크 4개) -->
+    <!-- 상단 배너 -->
     <div class="px-4 sm:px-5 mb-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <a href="https://www.kdrcash.kr/" target="_blank" rel="noopener noreferrer" class="block group">
@@ -73,7 +73,7 @@
       <!-- 단일 계산 -->
       <div id="content_single">
         <div class="bg-white rounded-2xl p-6 md:p-8 border">
-          <!-- (추가) 대표자 소득세율(%) + 합계 세율 -->
+          <!-- 대표자 세율 -->
           <div class="mb-3">
             <label for="owner_rate_single" class="block text-gray-700 font-semibold mb-2">대표자 소득세율(%)</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -87,10 +87,9 @@
                 합계 세율: <b id="combined_rate_single" class="text-gray-900 tnum">- %</b>
                 <span id="combined_hint_single" class="text-[11px] text-gray-500 ml-1"></span>
               </div>
-              <!-- 단일: 엑셀 버튼 -->
-	      <button id="export_single_btn" type="button"
- 		     class="w-full sm:w-36 px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 sm:ml-auto disabled:opacity-50"
-		     disabled>엑셀로 내보내기</button>
+              <button id="export_single_btn" type="button"
+                class="w-full sm:w-36 px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 sm:ml-auto disabled:opacity-50"
+                disabled>엑셀로 내보내기</button>
             </div>
           </div>
 
@@ -102,9 +101,9 @@
           <div class="mb-4">
             <label for="nontax" class="block text-gray-700 font-semibold mb-2">비과세 합계 (월) : 식대/자가운전 등 (원)</label>
             <input id="nontax" type="text" inputmode="numeric" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="예: 200,000 (없으면 0)">
-            <p id="table_status" class="text-[11px] text-gray-400 mt-1">세액표 불러오는 중…</p>
+            <p id="table_status" class="text-[11px] text-gray-400 mt-1">API 연결 준비 완료</p>
           </div>
-          <button id="calc_btn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 disabled:opacity-50" disabled>계산하기</button>
+          <button id="calc_btn" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">계산하기</button>
 
           <!-- 결과 -->
           <div id="result" class="bg-gray-50 rounded-lg p-6 hidden">
@@ -150,7 +149,7 @@
               </div>
             </div>
 
-            <!-- (추가) 실부담액 + 절세액 표기 -->
+            <!-- 실부담/절세 -->
             <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
               <div class="bg-white rounded-lg border p-3">
                 <div class="text-gray-700 font-medium">실부담액(퇴직금 제외)</div>
@@ -179,23 +178,23 @@
             <div class="mt-6">
               <h3 class="text-lg font-bold text-gray-700 mb-2">세부 공제 내역</h3>
               <ul class="text-sm text-gray-600 space-y-1">
-                <li class="flex justify-between"><span>국민연금 (4.5%)</span><span id="np_deduction"></span></li>
-                <li class="flex justify-between"><span>건강보험 (3.545%)</span><span id="hi_deduction"></span></li>
-                <li class="flex justify-between"><span>장기요양 (건보료의 12.95%)</span><span id="ltc_deduction"></span></li>
-                <li class="flex justify-between"><span>고용보험 (0.9%)</span><span id="ei_deduction"></span></li>
-                <li class="flex justify-between"><span>소득세 (간이세액표)</span><span id="tax_deduction"></span></li>
-                <li class="flex justify-between"><span>지방소득세 (10%)</span><span id="local_tax_deduction"></span></li>
+                <li class="flex justify-between"><span>국민연금 (근로자)</span><span id="np_deduction"></span></li>
+                <li class="flex justify-between"><span>건강보험 (근로자)</span><span id="hi_deduction"></span></li>
+                <li class="flex justify-between"><span>장기요양 (근로자)</span><span id="ltc_deduction"></span></li>
+                <li class="flex justify-between"><span>고용보험 (근로자)</span><span id="ei_deduction"></span></li>
+                <li class="flex justify-between"><span>소득세</span><span id="tax_deduction"></span></li>
+                <li class="flex justify-between"><span>지방소득세</span><span id="local_tax_deduction"></span></li>
               </ul>
 
               <!-- 사업주 부담 -->
               <div class="mt-6 border-t pt-4">
                 <h4 class="text-base font-bold text-gray-700 mb-2">사업주 부담분</h4>
                 <ul class="text-sm text-gray-600 space-y-1">
-                  <li class="flex justify-between"><span>국민연금 (4.5%)</span><span id="np_er"></span></li>
-                  <li class="flex justify-between"><span>건강보험 (3.545%)</span><span id="hi_er"></span></li>
-                  <li class="flex justify-between"><span>장기요양 (건보료의 12.95%)</span><span id="ltc_er"></span></li>
-                  <li class="flex justify-between"><span>고용보험 (1.15%)</span><span id="ei_er"></span></li>
-                  <li class="flex justify-between"><span>산재보험 (0.72%)</span><span id="wci_er"></span></li>
+                  <li class="flex justify-between"><span>국민연금 (사업주)</span><span id="np_er"></span></li>
+                  <li class="flex justify-between"><span>건강보험 (사업주)</span><span id="hi_er"></span></li>
+                  <li class="flex justify-between"><span>장기요양 (사업주)</span><span id="ltc_er"></span></li>
+                  <li class="flex justify-between"><span>고용보험 (사업주)</span><span id="ei_er"></span></li>
+                  <li class="flex justify-between"><span>산재보험 (사업주)</span><span id="wci_er"></span></li>
                   <li class="flex justify-between font-semibold pt-1"><span>4대보험 사업주 부담분</span><span id="er_total"></span></li>
                 </ul>
 
@@ -243,7 +242,7 @@
       <div id="content_multi" class="hidden">
         <div class="bg-white rounded-2xl p-6 md:p-8 border">
 
-          <!-- 대표자 소득세율(%) + 합계 세율 표시 -->
+          <!-- 대표자 세율 -->
           <div class="mb-4">
             <label for="owner_rate" class="block text-gray-700 font-semibold mb-2">대표자 소득세율(%)</label>
             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
@@ -257,10 +256,9 @@
                 합계 세율: <b id="combined_rate" class="text-gray-900 tnum">- %</b>
                 <span id="combined_hint" class="text-[11px] text-gray-500 ml-1"></span>
               </div>
-              <!-- 다중: 엑셀 버튼 -->
-	      <button id="export_multi_btn" type="button"
-		      class="w-full sm:w-36 px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 sm:ml-auto"
-		      title="표에 출력된 다중 계산 결과를 엑셀로 저장">엑셀로 내보내기</button>
+              <button id="export_multi_btn" type="button"
+                class="w-full sm:w-36 px-3 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 sm:ml-auto"
+                title="표에 출력된 다중 계산 결과를 엑셀로 저장">엑셀로 내보내기</button>
             </div>
           </div>
 
@@ -305,7 +303,7 @@
             </table>
           </div>
 
-          <p id="table_status_multi" class="text-[11px] text-gray-400 mt-1">세액표 준비 상태: 로딩 중…</p>
+          <p id="table_status_multi" class="text-[11px] text-gray-400 mt-1">API 연결 준비 완료</p>
         </div>
       </div>
     </section>
@@ -344,12 +342,9 @@
         <div>
           <h4 class="font-semibold text-gray-900 mb-1">적용 규칙</h4>
           <ul class="list-disc pl-5 space-y-1">
-            <li>2024 간이세액표(1인) 적용</li>
-            <li>4대보험 상·하한 반영</li>
-            <li>장기요양보험료 = 건강보험료 × <b>12.95%</b></li>
-            <li>모든 세목·보험 <b>10원 절사</b></li>
-            <li>세목·보험 산정 기준: <b>비과세 제외 금액</b></li>
-            <li>국민연금 기준소득: <b>천원단위</b>로 내림</li>
+            <li>서버(람다) 계산 적용</li>
+            <li>4대보험 상·하한/장기요양/간이세액표는 서버에서 반영</li>
+            <li>클라이언트는 결과만 표시</li>
           </ul>
         </div>
         <div>
@@ -383,7 +378,7 @@
           <input type="radio" name="input_mode" value="net" class="mt-1.5" checked>
           <div class="flex-1">
             <div class="font-semibold text-gray-900">실수령(세후)</div>
-            <p class="text-gray-600 mt-1">입력한 금액을 <b>실수령액</b>으로 보고, 세목/4대보험을 반영해 <b>지급총액</b>을 역산합니다.</p>
+            <p class="text-gray-600 mt-1">입력한 금액을 <b>실수령액</b>으로 보고, 서버에서 <b>지급총액</b>을 역산합니다.</p>
           </div>
         </label>
 
@@ -391,7 +386,7 @@
           <input type="radio" name="input_mode" value="gross" class="mt-1.5">
           <div class="flex-1">
             <div class="font-semibold text-gray-900">지급총액(세전)</div>
-            <p class="text-gray-600 mt-1">입력한 금액을 <b>지급총액</b>으로 고정하여 공제를 계산하고, <b>실수령액</b>을 산출합니다.</p>
+            <p class="text-gray-600 mt-1">입력한 금액을 <b>지급총액</b>으로 고정하여 공제를 계산하고, <b>실수령액</b>을 서버에서 산출합니다.</p>
           </div>
         </label>
       </div>
@@ -403,20 +398,30 @@
   </div>
 
   <script>
-    /* ========== 유틸/포맷터 ========== */
+    /* ===== 서버 API 설정 ===== */
+    const API_BASE = "https://dgrfavjoudnkjfbibm3k3sinfy0wzdmw.lambda-url.us-east-1.on.aws";
+    async function callCalcAPI(payload) {
+      const res = await fetch(API_BASE + "/calc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("API 오류: " + res.status);
+      return res.json();
+    }
+
+    /* ===== 유틸/포맷터 ===== */
     const NF_WON = new Intl.NumberFormat('ko-KR');
     const NF_PCT = new Intl.NumberFormat('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     const fmt = n => NF_WON.format(Math.round(n)) + ' 원';
     const fmtPct = n => NF_PCT.format(n) + ' %';
-    const trunc10 = v => Math.floor(v / 10) * 10;
-    const clamp = (x, lo, hi) => Math.min(Math.max(x, lo), hi);
     const onlyNumber = v => parseFloat((v || '0').replace(/[^\d]/g, '')) || 0;
     const bindComma = el => el.addEventListener('input', e => {
       const d = e.target.value.replace(/[^\d]/g, '');
       e.target.value = d ? NF_WON.format(+d) : '';
     });
 
-    /* ========== DOM 캐시 ========== */
+    /* ===== DOM 캐시 ===== */
     const EL = {
       tabSingleBtn: document.getElementById('tab_single'),
       tabMultiBtn: document.getElementById('tab_multi'),
@@ -485,26 +490,21 @@
       calcMulti: document.getElementById('calc_multi'),
       thMultiCol1: document.getElementById('th_multi_col1'),
       multiHintLabel: document.getElementById('multi_hint_label'),
-      /* 추가: 다중 탭 대표자 세율 */
       ownerRateInput: document.getElementById('owner_rate'),
       combinedRateOut: document.getElementById('combined_rate'),
       combinedHint: document.getElementById('combined_hint'),
-      /* 추가: 단일 탭 대표자 세율 */
       ownerRateInputSingle: document.getElementById('owner_rate_single'),
       combinedRateOutSingle: document.getElementById('combined_rate_single'),
       combinedHintSingle: document.getElementById('combined_hint_single'),
-      /* 추가: 단일 탭 실부담액 출력 */
       realBurdenExclSingle: document.getElementById('real_burden_excl_single'),
       realBurdenInclSingle: document.getElementById('real_burden_incl_single'),
-      /* 추가: 절세액 표시 요소 */
       realBurdenExclSaving: document.getElementById('real_burden_excl_saving'),
       realBurdenInclSaving: document.getElementById('real_burden_incl_saving'),
-      /* 엑셀 버튼 */
       exportSingleBtn: document.getElementById('export_single_btn'),
       exportMultiBtn: document.getElementById('export_multi_btn'),
     };
 
-    /* ========== 탭 전환 ========== */
+    /* ===== 탭 전환 ===== */
     const ACTIVE = ['text-blue-600','font-bold','border-blue-600'];
     const INACTIVE = ['text-gray-500','border-transparent'];
     const setActive = (a,b,show,hide) => {
@@ -516,91 +516,21 @@
     EL.tabMultiBtn.addEventListener('click',  ()=>setActive(EL.tabMultiBtn, EL.tabSingleBtn, EL.contentMulti, EL.contentSingle));
     setActive(EL.tabSingleBtn, EL.tabMultiBtn, EL.contentSingle, EL.contentMulti);
 
-    /* ========== 상수(제도 파라미터) ========== */
-    const NP_MIN=400_000, NP_MAX=6_370_000;
-    const HI_MIN=279_266, HI_MAX=127_056_982;
-    const NP_RATE=0.0450, HI_RATE=0.03545, LTC_RATE=0.1295, EI_RATE=0.0090;
-    const NP_ER_RATE=0.0450, HI_ER_RATE=0.03545, LTC_ER_RATE=0.1295, EI_ER_RATE=0.0115, WCI_ER_RATE=0.0072;
-    const BASE10_1PERSON_RAW=1_507_405;
-    const TAX_ZERO_THRESHOLD = 1_060_000;
-    const EARNED_DED_CAP = 20_000_000;
-    const BASIC_DEDUCTION = 1_500_000;
-
-    /* ========== 대표자 합계세율 계산(공통 로직) ========== */
-    const HEALTH_TOTAL_RATE_OWNER = 2 * HI_RATE * (1 + LTC_RATE); // ≈ 0.08008 (8.008%)
-
-    // 다중 탭용
-    function parseOwnerRatePct() {
-      const raw = (EL.ownerRateInput?.value || '').replace(/[^\d.]/g, '');
-      const v = parseFloat(raw);
-      return Number.isFinite(v) ? v : 35;
-    }
-    function calcCombinedRateFraction() {
-      const owner = parseOwnerRatePct() / 100;
-      const local = owner * 0.10;
-      return owner + local + HEALTH_TOTAL_RATE_OWNER;
-    }
-    function renderCombinedRate() {
-      const owner = parseOwnerRatePct() / 100;
-      const local = owner * 0.10;
-      const health = HEALTH_TOTAL_RATE_OWNER;
-      const total = owner + local + health;
-      if (EL.combinedRateOut) EL.combinedRateOut.textContent = (total * 100).toFixed(1) + ' %';
-      if (EL.combinedHint) {
-        EL.combinedHint.textContent =
-          `(소득세 ${ (owner*100).toFixed(1)}% + 지방 ${ (local*100).toFixed(1)}% + 건보·장기요양 ${ (health*100).toFixed(2)}%)`;
-      }
-    }
-    EL.ownerRateInput?.addEventListener('input', renderCombinedRate);
-    renderCombinedRate();
-
-    // 단일 탭용
+    /* ===== 입력 포맷 바인딩 ===== */
+    bindComma(EL.netInput);
+    bindComma(EL.nonTaxInput);
     function parseOwnerRatePctSingle() {
       const raw = (EL.ownerRateInputSingle?.value || '').replace(/[^\d.]/g, '');
       const v = parseFloat(raw);
       return Number.isFinite(v) ? v : 35;
     }
-    function calcCombinedRateFractionSingle() {
-      const owner = parseOwnerRatePctSingle() / 100;
-      const local = owner * 0.10;
-      return owner + local + HEALTH_TOTAL_RATE_OWNER;
+    function parseOwnerRatePct() {
+      const raw = (EL.ownerRateInput?.value || '').replace(/[^\d.]/g, '');
+      const v = parseFloat(raw);
+      return Number.isFinite(v) ? v : 35;
     }
-    function renderCombinedRateSingle() {
-      const owner = parseOwnerRatePctSingle() / 100;
-      const local = owner * 0.10;
-      const health = HEALTH_TOTAL_RATE_OWNER;
-      const total = owner + local + health;
-      if (EL.combinedRateOutSingle) EL.combinedRateOutSingle.textContent = (total * 100).toFixed(1) + ' %';
-      if (EL.combinedHintSingle) {
-        EL.combinedHintSingle.textContent =
-          `(소득세 ${ (owner*100).toFixed(1)}% + 지방 ${ (local*100).toFixed(1)}% + 건보·장기요양 ${ (health*100).toFixed(2)}%)`;
-      }
-    }
-    EL.ownerRateInputSingle?.addEventListener('input', renderCombinedRateSingle);
-    renderCombinedRateSingle();
 
-    /* ========== 입력 포맷 바인딩 ========== */
-    bindComma(EL.netInput);
-    bindComma(EL.nonTaxInput);
-    const num = el => onlyNumber(el.value);
-
-    /* ========== Ver 모달 ========== */
-    function fillVerModalBounds(){
-      document.getElementById('np_min_label').textContent = fmt(NP_MIN);
-      document.getElementById('np_max_label').textContent = fmt(NP_MAX);
-      document.getElementById('hi_min_label').textContent = fmt(HI_MIN);
-      document.getElementById('hi_max_label').textContent = fmt(HI_MAX);
-      document.getElementById('tax_zero_label').textContent = fmt(TAX_ZERO_THRESHOLD);
-    }
-    function openVerModal(){ fillVerModalBounds(); EL.verModal.classList.remove('hidden'); EL.verModal.classList.add('flex'); document.body.classList.add('overflow-hidden'); }
-    function closeVerModal(){ EL.verModal.classList.add('hidden'); EL.verModal.classList.remove('flex'); document.body.classList.remove('overflow-hidden'); }
-    EL.verBtn.addEventListener('click', openVerModal);
-    EL.verClose.addEventListener('click', closeVerModal);
-    EL.verOk.addEventListener('click', closeVerModal);
-    EL.verModal.addEventListener('click', (e)=>{ const dialog=EL.verModal.querySelector('[role="dialog"]'); if(!dialog.contains(e.target)) closeVerModal(); });
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeVerModal(); });
-
-    /* ========== 입력 기준(실수령/지급총액) ========== */
+    /* ===== 입력 기준(실수령/지급총액) ===== */
     let inputMode = 'net'; // 'net' | 'gross'
     function openInputMode(){ EL.inputModeModal.classList.add('show'); document.body.classList.add('overflow-hidden'); setInputModeRadios(inputMode); }
     function closeInputMode(){ EL.inputModeModal.classList.remove('show'); document.body.classList.remove('overflow-hidden'); }
@@ -616,14 +546,10 @@
       rNet.checked = (mode==='net');
       rGross.checked = (mode==='gross');
     }
-
     function updateMultiPlaceholders(){
       const ph = (inputMode==='net' ? '실수령액' : '지급총액');
-      document.querySelectorAll('#multi_inputs .net-input').forEach(inp=>{
-        inp.setAttribute('placeholder', ph);
-      });
+      document.querySelectorAll('#multi_inputs .net-input')?.forEach(inp=>inp.setAttribute('placeholder', ph));
     }
-
     function applyInputModeUI(){
       if(inputMode==='net'){
         EL.inputModeLabel.textContent = '실수령';
@@ -637,210 +563,71 @@
       EL.thMultiCol1.textContent = '실수령액';
       updateMultiPlaceholders();
     }
-
     EL.inputModeApply.addEventListener('click', ()=>{
       const selected = document.querySelector('input[name="input_mode"]:checked')?.value || 'net';
       inputMode = selected;
       applyInputModeUI();
       closeInputMode();
     });
+    applyInputModeUI();
 
-    /* ========== 세액표 로딩 ========== */
-    let TAX_TABLE=[], tableReady=false;
-    async function loadTax(){
-      const get = async (path) => {
-        const r = await fetch(path, { cache:'no-store' });
-        if(!r.ok) throw new Error('HTTP '+r.status);
-        return r.json();
-      };
-      try{
-        try { TAX_TABLE = await get('./simplified_tax_table_2024_1person.v2.json'); }
-        catch { TAX_TABLE = await get('./simplified_tax_table_2024_1person.json'); }
-        TAX_TABLE.sort((a,b)=>a.min_won-b.min_won);
-        tableReady = true;
-        EL.statusSingle.textContent = '세액표 준비 상태: 로드 완료';
-        EL.statusMulti.textContent = '세액표 준비 상태: 로드 완료';
-        EL.calcBtn.disabled = false;
-      }catch(e){
-        EL.statusSingle.textContent = '세액표 로드 실패: '+e.message;
-        EL.statusMulti.textContent = '세액표 로드 실패: '+e.message;
-      }
+    /* ===== 대표자 합계세율 라벨(프론트 표시용, 실제 계산은 서버 결과 사용) ===== */
+    function renderOwnerCombinedRate(elOut, elHint, ownerPct){
+      // 서버도 계산하지만, UI 라벨은 즉시 표시
+      // 건보+장기요양의 합계(근로자+사업주)는 서버와 다를 수 있으나, 참고용 라벨
+      const HI = 0.03545;
+      const LTC = 0.1295;
+      const healthBoth = 2 * HI * (1 + LTC); // ~8.008%
+      const owner = (ownerPct/100);
+      const local = owner * 0.10;
+      const total = owner + local + healthBoth;
+      if (elOut) elOut.textContent = (total*100).toFixed(1) + ' %';
+      if (elHint) elHint.textContent =
+        `(소득세 ${(owner*100).toFixed(1)}% + 지방 ${(local*100).toFixed(1)}% + 건보·장기요양 ${(healthBoth*100).toFixed(2)}%)`;
     }
-    loadTax();
-
-    /* ========== 세액/공제 계산 ========== */
-    const simplifiedTax = (amountExclNT)=>{
-      const lookup = (x)=>{
-        let lo=0, hi=TAX_TABLE.length-1;
-        while(lo<=hi){
-          const m=(lo+hi)>>1, row=TAX_TABLE[m];
-          if(x<row.min_won) hi=m-1;
-          else if(x>=row.max_won) lo=m+1;
-          else return { found:true, tax:+row.tax||0 };
-        }
-        return { found:false, tax:0 };
-      };
-      const r=lookup(amountExclNT);
-      if(r.found) return trunc10(r.tax);
-      const g=amountExclNT, b10=BASE10_1PERSON_RAW;
-      let t=b10;
-      if(g>10_000_000&&g<=14_000_000) t += 25_000 + 0.35*0.98*(g-10_000_000);
-      else if(g>14_000_000&&g<=28_000_000) t += 1_397_000 + 0.38*0.98*(g-14_000_000);
-      else if(g>28_000_000&&g<=30_000_000) t += 6_610_600 + 0.40*0.98*(g-28_000_000);
-      else if(g>30_000_000&&g<=45_000_000) t += 7_394_600 + 0.40*(g-30_000_000);
-      else if(g>45_000_000&&g<=87_000_000) t += 13_394_600 + 0.42*(g-45_000_000);
-      else if(g>87_000_000)               t += 31_034_600 + 0.45*(g-87_000_000);
-      return trunc10(t);
-    };
-
-    function incomeTaxProgressive(taxBase){
-      const tb = Math.max(0, Math.floor(taxBase));
-      let tax=0, rate=0;
-      if (tb <= 14_000_000){ rate=0.06; tax = tb * 0.06; }
-      else if (tb <= 50_000_000){ rate=0.15; tax = tb * 0.15 - 1_260_000; }
-      else if (tb <= 88_000_000){ rate=0.24; tax = tb * 0.24 - 5_760_000; }
-      else if (tb <= 150_000_000){ rate=0.35; tax = tb * 0.35 - 15_440_000; }
-      else if (tb <= 300_000_000){ rate=0.38; tax = tb * 0.38 - 19_940_000; }
-      else if (tb <= 500_000_000){ rate=0.40; tax = tb * 0.40 - 25_940_000; }
-      else if (tb <= 1_000_000_000){ rate=0.42; tax = tb * 0.42 - 35_940_000; }
-      else { rate=0.45; tax = tb * 0.45 - 65_940_000; }
-      return { tax: Math.floor(tax), topRate: rate };
+    function attachOwnerRateUI(){
+      const handlerSingle = ()=>renderOwnerCombinedRate(EL.combinedRateOutSingle, EL.combinedHintSingle, parseOwnerRatePctSingle());
+      const handlerMulti  = ()=>renderOwnerCombinedRate(EL.combinedRateOut, EL.combinedHint, parseOwnerRatePct());
+      EL.ownerRateInputSingle?.addEventListener('input', handlerSingle);
+      EL.ownerRateInput?.addEventListener('input', handlerMulti);
+      handlerSingle(); handlerMulti();
     }
+    attachOwnerRateUI();
 
-    function earnedIncomeDeduction(totalSalaryAnnual){
-      const x = totalSalaryAnnual;
-      let d=0;
-      if (x <= 5_000_000) d = x * 0.70;
-      else if (x <= 15_000_000) d = 3_500_000 + (x - 5_000_000) * 0.40;
-      else if (x <= 45_000_000) d = 7_500_000 + (x - 15_000_000) * 0.15;
-      else if (x <= 100_000_000) d = 12_000_000 + (x - 45_000_000) * 0.05;
-      else d = 14_750_000 + (x - 100_000_000) * 0.02;
-      return Math.min(Math.floor(d), EARNED_DED_CAP);
-    }
+    /* ===== 전역 상태 (단일) - 엑셀 내보내기용 ===== */
+    let lastServerResult = null;   // data.result
+    let lastServerReal   = null;   // data.real
+    let lastServerAnnual = null;   // data.annual
+    let lastOwnerRatePct = 35;
+    let lastInputMode    = 'net';
 
-    function earnedIncomeTaxCredit(annualSalary, computedIncomeTax){
-      let credit = (computedIncomeTax <= 1_300_000)
-        ? Math.floor(computedIncomeTax * 0.55)
-        : Math.floor(715_000 + (computedIncomeTax - 1_300_000) * 0.30);
-      let cap = 0;
-      if (annualSalary <= 33_000_000) cap = 740_000;
-      else if (annualSalary <= 70_000_000) cap = Math.max(660_000, 740_000 - (annualSalary - 33_000_000) * 0.008);
-      else if (annualSalary <= 120_000_000) cap = Math.max(500_000, 660_000 - (annualSalary - 70_000_000) * 0.5);
-      else cap = Math.max(200_000, 500_000 - (annualSalary - 120_000_000) * 0.5);
-      return Math.min(credit, Math.floor(cap));
-    }
-
-    function baseFromGross(gross, nonTax){
-      const baseIns = Math.max(gross - nonTax, 0);
-      const baseNP = clamp(Math.floor(baseIns/1000)*1000, NP_MIN, NP_MAX);
-      const baseHI = clamp(baseIns, HI_MIN, HI_MAX);
-      const baseEI = baseIns;
-      return { baseIns, baseNP, baseHI, baseEI, baseTax: baseIns };
-    }
-
-    function employeeDeductions(bases){
-      const np  = trunc10(bases.baseNP * NP_RATE);
-      const hi  = trunc10(bases.baseHI * HI_RATE);
-      const ltc = trunc10(hi * LTC_RATE);
-      const ei  = trunc10(bases.baseEI * EI_RATE);
-      const tax = bases.baseIns < TAX_ZERO_THRESHOLD ? 0 : simplifiedTax(bases.baseIns);
-      const ltax= bases.baseIns < TAX_ZERO_THRESHOLD ? 0 : trunc10(tax * 0.1);
-      const total = np + hi + ltc + ei + tax + ltax;
-      return { np, hi, ltc, ei, tax, ltax, total };
-    }
-
-    function employerDeductions(bases){
-      const np_er  = trunc10(bases.baseNP * NP_ER_RATE);
-      const hi_er  = trunc10(bases.baseHI * HI_ER_RATE);
-      const ltc_er = trunc10(hi_er * LTC_ER_RATE);
-      const ei_er  = trunc10(bases.baseEI * EI_ER_RATE);
-      const wci_er = trunc10(bases.baseEI * WCI_ER_RATE);
-      const er_total = np_er + hi_er + ltc_er + ei_er + wci_er;
-      return { np_er, hi_er, ltc_er, ei_er, wci_er, er_total };
-    }
-
-    /* ========== 월 계산 ========== */
-    function compute(netPay, nonTax){
-      if(!tableReady || netPay<=0) return null;
-      const approxRate = NP_RATE + HI_RATE + (HI_RATE * LTC_RATE) + EI_RATE;
-      let gross = netPay / (1 - approxRate);
-      const TOL = 1, MAX_IT = 60;
-      for(let i=0;i<MAX_IT;i++){
-        const bases = baseFromGross(gross, nonTax);
-        const emp = employeeDeductions(bases);
-        const newGross = netPay + emp.total;
-        if (Math.abs(newGross - gross) < TOL) { gross = newGross; break; }
-        gross = newGross;
-      }
-      return computeFromGross(gross, nonTax);
-    }
-
-    function computeFromGross(gross, nonTax, knownNet=null){
-      if(gross<=0) return null;
-      const bases = baseFromGross(gross, nonTax);
-      const emp = employeeDeductions(bases);
-      const er  = employerDeductions(bases);
-      const net = (knownNet!=null) ? knownNet : Math.max(0, Math.round(gross - emp.total));
-
-      const social_total = (emp.np + emp.hi + emp.ltc + emp.ei) + er.er_total;
-      const withholding_total = emp.tax + emp.ltax;
-      const gratuity = Math.round(gross / 12);
-      const overhead_excl = social_total + withholding_total;
-      const overhead_incl = overhead_excl + gratuity;
-
-      const total_burden_excl = net + overhead_excl;
-      const total_burden_incl = net + overhead_incl;
-
-      const annual_excl = Math.round(gross * 12);
-      const annual_incl = Math.round(gross * 13);
-
-      return {
-        net, gross, total: emp.total, annual_excl, annual_incl,
-        social_total, withholding_total, overhead_excl, overhead_incl, gratuity,
-        total_burden_excl, total_burden_incl,
-        ...emp, ...er, ...bases, nonTax
-      };
-    }
-
-    /* ========== 연간 계산(요약/전체) ========== */
+    /* ===== 연간 표 렌더링 (서버 응답 사용) ===== */
     const SUMMARY_KEYS = new Set(['총급여','과세표준','산출세액','결정세액','기납부세액(소득세)','차감징수세액(소득세)','차감징수지방세(10%)']);
     let annualFull = false;
-    let lastResult = null;
 
-    function renderAnnual(res){
+    function renderAnnualFromServer(res, annual){
+      // res: data.result, annual: data.annual
       const annualSalary = Math.max(0, Math.round((res.gross - res.nonTax) * 12));
-      const earnedDed = earnedIncomeDeduction(annualSalary);
-      const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);
-      const taxBase = Math.max(0, earnedIncomeAmt - BASIC_DEDUCTION);
-      const { tax: computedIncomeTax, topRate } = incomeTaxProgressive(taxBase);
-      const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);
-      const stdCredit = 130_000;
-      const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);
-      const prepaidIncomeTaxOnly = Math.round(lastResult.tax * 12);
-      const diffIncomeTax = finalIncomeTax - prepaidIncomeTaxOnly;
-      const diffLocalTax  = Math.round(diffIncomeTax * 0.10);
-
       const rows = [
         ['총급여', annualSalary],
-        ['근로소득공제', earnedDed],
-        ['근로소득금액', earnedIncomeAmt],
-        ['기본공제', BASIC_DEDUCTION],
-        ['과세표준', taxBase],
-        ['세율', (topRate*100).toFixed(0)+' %'],
-        ['산출세액', computedIncomeTax],
-        ['근로소득세액공제', eitc],
-        ['표준세액공제', stdCredit],
-        ['결정세액', finalIncomeTax],
-        ['기납부세액(소득세)', prepaidIncomeTaxOnly],
-        ['차감징수세액(소득세)', diffIncomeTax],
-        ['차감징수지방세(10%)', diffLocalTax],
+        ['근로소득공제', annual.earnedDed],
+        ['근로소득금액', annual.earnedIncomeAmt],
+        ['기본공제', 1_500_000],
+        ['과세표준', annual.taxBase],
+        ['세율', (annual.topRate*100).toFixed(0)+' %'],
+        ['산출세액', annual.finalIncomeTax + annual.earnedIncomeTaxCredit /* 역산 불가 시 산출세액=결정+공제 대략*/],
+        ['근로소득세액공제', annual.earnedIncomeTaxCredit ?? 0],
+        ['표준세액공제', 130_000],
+        ['결정세액', annual.finalIncomeTax],
+        ['기납부세액(소득세)', Math.round(res.tax * 12)],
+        ['차감징수세액(소득세)', annual.finalIncomeTax - Math.round(res.tax * 12)],
+        ['차감징수지방세(10%)', Math.round((annual.finalIncomeTax - Math.round(res.tax * 12)) * 0.10)],
       ];
 
       EL.annualBody.innerHTML = '';
       const data = annualFull ? rows : rows.filter(([k])=>SUMMARY_KEYS.has(k));
       EL.annualToggle.textContent = annualFull ? '요약 보기' : '전체 보기';
       EL.annualToggle.setAttribute('aria-pressed', String(annualFull));
-      EL.annualWrap.classList.remove('scrollbox');
 
       data.forEach(([k, v])=>{
         const isRate = k==='세율';
@@ -854,88 +641,120 @@
           </td>`;
         EL.annualBody.appendChild(tr);
       });
-
-      return { earnedIncomeAmt, finalIncomeTax, topRate };
     }
+    EL.annualToggle?.addEventListener('click', () => {
+      annualFull = !annualFull;
+      if (lastServerResult && lastServerAnnual) renderAnnualFromServer(lastServerResult, lastServerAnnual);
+    });
 
-    /* ========== 단일 계산 이벤트 ========== */
-    EL.calcBtn.addEventListener('click', ()=>{
-      if(!tableReady){ EL.statusSingle.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
+    /* ===== 단일 계산 이벤트: 서버 호출 ===== */
+    EL.calcBtn.addEventListener('click', async ()=>{
       const primary = onlyNumber(EL.netInput.value);
       const nonTax  = onlyNumber(EL.nonTaxInput.value);
       if(primary<=0){ EL.result.classList.add('hidden'); EL.error.classList.remove('hidden'); return; }
 
-      const r = (inputMode==='net') ? compute(primary, nonTax) : computeFromGross(primary, nonTax, null);
-      if(!r) return; lastResult = r;
+      const ownerRatePct = parseOwnerRatePctSingle();
+      const mode = (inputMode==='net') ? 'net' : 'gross';
+      const payload = (mode === 'net')
+        ? { mode:'net', net: primary, nonTax, ownerRatePct }
+        : { mode:'gross', gross: primary, nonTax, ownerRatePct };
 
-      const baseNet = r.net;
-      const exclPct = (r.total_burden_excl / Math.max(1, baseNet)) * 100;
-      const inclPct = (r.total_burden_incl / Math.max(1, baseNet)) * 100;
+      EL.statusSingle.textContent = '서버 계산 중…';
 
-      EL.socialSum.textContent = fmt(r.social_total);
-      EL.withholdSum.textContent = fmt(r.withholding_total);
-      EL.overheadExcl.textContent = fmt(r.overhead_excl);
-      EL.gratuity.textContent = fmt(r.gratuity);
-      EL.overheadIncl.textContent = fmt(r.overhead_incl);
+      try{
+        const data = await callCalcAPI(payload);
+        const r = data.result;
 
-      EL.tbExcl.textContent = fmt(r.total_burden_excl);
-      EL.tbIncl.textContent = fmt(r.total_burden_incl);
-      EL.tbExclPct.textContent = fmtPct(exclPct);
-      EL.tbInclPct.textContent = fmtPct(inclPct);
+        // 상태 보관(엑셀용)
+        lastServerResult = r;
+        lastServerReal   = data.real;
+        lastServerAnnual = {
+          ...data.annual,
+          // 응답에 포함 안 돼 있을 수 있는 필드 보완
+          earnedIncomeTaxCredit: data.annual?.earnedIncomeTaxCredit ?? 0,
+        };
+        lastOwnerRatePct = ownerRatePct;
+        lastInputMode    = mode;
 
-      // (추가) 단일 탭 실부담액 + 절세액
-      const combinedRateSingle = calcCombinedRateFractionSingle();
-      const realExcl = Math.round(r.total_burden_excl * (1 - combinedRateSingle));
-      const realIncl = Math.round(r.total_burden_incl * (1 - combinedRateSingle));
-      EL.realBurdenExclSingle.textContent = fmt(realExcl);
-      EL.realBurdenInclSingle.textContent = fmt(realIncl);
-      const savingExcl = Math.round(r.total_burden_excl * combinedRateSingle);
-      const savingIncl = Math.round(r.total_burden_incl * combinedRateSingle);
-      EL.realBurdenExclSaving.textContent = NF_WON.format(savingExcl) + '원';
-      EL.realBurdenInclSaving.textContent = NF_WON.format(savingIncl) + '원';
+        // 결과 바인딩
+        const baseNet = r.net;
+        const exclPct = (r.total_burden_excl / Math.max(1, baseNet)) * 100;
+        const inclPct = (r.total_burden_incl / Math.max(1, baseNet)) * 100;
 
-      EL.annualExcl.textContent = fmt(r.annual_excl);
-      EL.annualIncl.textContent = fmt(r.annual_incl);
-      EL.gross.textContent = fmt(r.gross);
-      EL.totalDed.textContent = fmt(r.total);
+        EL.socialSum.textContent = fmt(r.social_total);
+        EL.withholdSum.textContent = fmt(r.withholding_total);
+        EL.overheadExcl.textContent = fmt(r.overhead_excl);
+        EL.gratuity.textContent = fmt(r.gratuity);
+        EL.overheadIncl.textContent = fmt(r.overhead_incl);
 
-      EL.np.textContent = fmt(r.np);
-      EL.hi.textContent = fmt(r.hi);
-      EL.ltc.textContent = fmt(r.ltc);
-      EL.ei.textContent = fmt(r.ei);
-      EL.tax.textContent = fmt(r.tax);
-      EL.ltax.textContent = fmt(r.ltax);
+        EL.tbExcl.textContent = fmt(r.total_burden_excl);
+        EL.tbIncl.textContent = fmt(r.total_burden_incl);
+        EL.tbExclPct.textContent = fmtPct(exclPct);
+        EL.tbInclPct.textContent = fmtPct(inclPct);
 
-      EL.np_er.textContent = fmt(r.np_er);
-      EL.hi_er.textContent = fmt(r.hi_er);
-      EL.ltc_er.textContent = fmt(r.ltc_er);
-      EL.ei_er.textContent = fmt(r.ei_er);
-      EL.wci_er.textContent = fmt(r.wci_er);
-      EL.er_total.textContent = fmt(r.er_total);
+        // 서버 절세 반영
+        EL.realBurdenExclSingle.textContent = fmt(data.real.excl);
+        EL.realBurdenInclSingle.textContent = fmt(data.real.incl);
+        EL.realBurdenExclSaving.textContent = NF_WON.format(data.real.savingExcl) + '원';
+        EL.realBurdenInclSaving.textContent = NF_WON.format(data.real.savingIncl) + '원';
 
-      EL.baseIns.textContent = fmt(r.baseIns);
-      EL.baseNP.textContent  = fmt(r.baseNP);
-      EL.baseHI.textContent  = fmt(r.baseHI);
-      EL.baseEI.textContent  = fmt(r.baseEI);
-      EL.baseTax.textContent = fmt(r.baseTax);
+        EL.annualExcl.textContent = fmt(Math.round(r.gross * 12));
+        EL.annualIncl.textContent = fmt(Math.round(r.gross * 13));
+        EL.gross.textContent = fmt(r.gross);
+        EL.totalDed.textContent = fmt(r.total);
 
-      annualFull = false;
-      renderAnnual(r);
+        EL.np.textContent = fmt(r.np);
+        EL.hi.textContent = fmt(r.hi);
+        EL.ltc.textContent = fmt(r.ltc);
+        EL.ei.textContent = fmt(r.ei);
+        EL.tax.textContent = fmt(r.tax);
+        EL.ltax.textContent = fmt(r.ltax);
 
-      EL.error.classList.add('hidden');
-      EL.result.classList.remove('hidden');
+        EL.np_er.textContent = fmt(r.np_er);
+        EL.hi_er.textContent = fmt(r.hi_er);
+        EL.ltc_er.textContent = fmt(r.ltc_er);
+        EL.ei_er.textContent = fmt(r.ei_er);
+        EL.wci_er.textContent = fmt(r.wci_er);
+        EL.er_total.textContent = fmt(r.er_total);
 
-      // 단일 엑셀 버튼 활성화
-      EL.exportSingleBtn.disabled = false;
+        EL.baseIns.textContent = fmt(r.baseIns);
+        EL.baseNP.textContent  = fmt(r.baseNP);
+        EL.baseHI.textContent  = fmt(r.baseHI);
+        EL.baseEI.textContent  = fmt(r.baseEI);
+        EL.baseTax.textContent = fmt(r.baseTax);
+
+        annualFull = false;
+        renderAnnualFromServer(r, lastServerAnnual);
+
+        EL.error.classList.add('hidden');
+        EL.result.classList.remove('hidden');
+        EL.statusSingle.textContent = '계산 완료';
+        EL.exportSingleBtn.disabled = false;
+
+        // Ver 모달 상·하한 레이블 서버 메타로 채우기 (선택)
+        try {
+          const metaRes = await fetch(API_BASE + '/meta');
+          if (metaRes.ok) {
+            const meta = await metaRes.json();
+            document.getElementById('np_min_label').textContent = fmt(meta.ranges?.np?.min ?? 0);
+            document.getElementById('np_max_label').textContent = fmt(meta.ranges?.np?.max ?? 0);
+            document.getElementById('hi_min_label').textContent = fmt(meta.ranges?.hi?.min ?? 0);
+            document.getElementById('hi_max_label').textContent = fmt(meta.ranges?.hi?.max ?? 0);
+            document.getElementById('tax_zero_label').textContent = fmt(meta.taxZeroMonthly ?? 0);
+          }
+        } catch {}
+
+      }catch(e){
+        EL.statusSingle.textContent = 'API 오류: ' + e.message;
+      }
     });
 
-    // 연간표 토글
-    EL.annualToggle?.addEventListener('click', () => {
-      annualFull = !annualFull;
-      if (lastResult) renderAnnual(lastResult);
-    });
-
-    /* ========== 다중 계산 ========== */
+    /* ===== 다중 계산: 각 행을 서버에 병렬 호출 ===== */
+    function bindCommaRowInputs(row){
+      const netEl=row.querySelector('.net-input'), ntEl=row.querySelector('.nontax-input');
+      bindComma(netEl); bindComma(ntEl);
+      row.querySelector('.remove-row').addEventListener('click', ()=>row.remove());
+    }
     function createRow(initialPrimary='', initialNT=''){
       const row = document.createElement('div');
       row.className='flex flex-col sm:flex-row gap-2';
@@ -946,150 +765,163 @@
         <button type="button" class="remove-row px-3 py-2 text-sm rounded-lg border hover:bg-gray-100">삭제</button>
       `;
       EL.multiInputs.appendChild(row);
-      const netEl=row.querySelector('.net-input'), ntEl=row.querySelector('.nontax-input');
-      bindComma(netEl); bindComma(ntEl);
-      row.querySelector('.remove-row').addEventListener('click', ()=>row.remove());
+      bindCommaRowInputs(row);
     }
-
-    function calcMulti(){
-      if(!tableReady){ EL.statusMulti.textContent='세액표가 아직 준비되지 않았습니다.'; return; }
-      EL.multiResults.innerHTML='';
-
-      const rows = Array.from(EL.multiInputs.children);
-      if(!rows.length) createRow();
-
-      const combinedRate = calcCombinedRateFraction();
-
-      rows.forEach(r=>{
-        const primary = onlyNumber(r.querySelector('.net-input').value);
-        const nonTax  = onlyNumber(r.querySelector('.nontax-input').value);
-        if(primary<=0) return;
-
-        const res = (inputMode==='net') ? compute(primary, nonTax) : computeFromGross(primary, nonTax);
-        if(!res) return;
-
-        const annualSalary = Math.max(0, Math.round((res.gross - nonTax) * 12));
-        const earnedDed = earnedIncomeDeduction(annualSalary);
-        const earnedIncomeAmt = Math.max(0, annualSalary - earnedDed);
-        const taxBase = Math.max(0, earnedIncomeAmt - BASIC_DEDUCTION);
-        const { topRate, tax: computedIncomeTax } = incomeTaxProgressive(taxBase);
-        const eitc = earnedIncomeTaxCredit(annualSalary, computedIncomeTax);
-        const stdCredit = 130_000;
-        const finalIncomeTax = Math.max(0, computedIncomeTax - eitc - stdCredit);
-
-        const baseNet = res.net;
-        const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
-        const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
-
-        const realBurdenExcl = Math.round(res.total_burden_excl * (1 - combinedRate));
-        const realBurdenIncl = Math.round(res.total_burden_incl * (1 - combinedRate));
-
-        const tr = document.createElement('tr'); tr.className='border-t';
-        tr.innerHTML = `
-          <td class="p-2 whitespace-nowrap text-right">${fmt(res.net)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(nonTax)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(res.gross)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(res.total)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(Math.round(res.gross*12))}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(Math.round(res.gross*13))}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_excl)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmtPct(exclPct)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_incl)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(earnedIncomeAmt)}</td>
-          <td class="p-2 whitespace-nowrap text-right tnum">${(topRate*100).toFixed(0)} %</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(realBurdenExcl)}</td>
-          <td class="p-2 whitespace-nowrap text-right">${fmt(realBurdenIncl)}</td>`;
-        EL.multiResults.appendChild(tr);
-      });
-
-      if(!EL.multiResults.children.length){
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td colspan="15" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
-        EL.multiResults.appendChild(tr);
-      }
-    }
-
     function resetMulti(){
       EL.multiInputs.innerHTML = '';
       EL.multiResults.innerHTML = '';
       createRow(); createRow();
       updateMultiPlaceholders();
     }
-
     EL.addRow.addEventListener('click', ()=>createRow());
     EL.resetMulti.addEventListener('click', resetMulti);
-    EL.calcMulti.addEventListener('click', calcMulti);
-
-    // 초기 준비
+    // 초기 두 줄
     createRow(); createRow();
-    applyInputModeUI();
 
-    /* ========== 엑셀 내보내기: 단일 결과 ========== */
-    function exportSingleToExcel(){
-      if(!lastResult){ return; }
+    EL.calcMulti.addEventListener('click', async ()=>{
+      EL.multiResults.innerHTML='';
+      const rows = Array.from(EL.multiInputs.children);
+      if(!rows.length) createRow();
+
+      const ownerRatePct = parseOwnerRatePct();
+      const mode = (inputMode==='net') ? 'net' : 'gross';
+
+      EL.statusMulti.textContent = '서버 계산 중…';
+
+      const tasks = rows.map(async (r)=>{
+        const primary = onlyNumber(r.querySelector('.net-input').value);
+        const nonTax  = onlyNumber(r.querySelector('.nontax-input').value);
+        if(primary<=0) return null;
+
+        const payload = (mode==='net') ? { mode:'net', net: primary, nonTax, ownerRatePct }
+                                       : { mode:'gross', gross: primary, nonTax, ownerRatePct };
+        try{
+          const data = await callCalcAPI(payload);
+          const res = data.result;
+          const annualSalary = Math.max(0, Math.round((res.gross - nonTax) * 12));
+          const topRatePct = (data.annual?.topRate ?? 0) * 100;
+          const finalIncomeTax = data.annual?.finalIncomeTax ?? 0;
+
+          const baseNet = res.net;
+          const exclPct = (res.total_burden_excl/Math.max(1, baseNet))*100;
+          const inclPct = (res.total_burden_incl/Math.max(1, baseNet))*100;
+
+          const tr = document.createElement('tr'); tr.className='border-t';
+          tr.innerHTML = `
+            <td class="p-2 whitespace-nowrap text-right">${fmt(res.net)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(nonTax)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(res.gross)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(res.total)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(Math.round(res.gross*12))}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(Math.round(res.gross*13))}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_excl)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmtPct(exclPct)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(res.total_burden_incl)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmtPct(inclPct)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(annualSalary - (data.annual?.earnedDed ?? 0))}</td>
+            <td class="p-2 whitespace-nowrap text-right tnum">${topRatePct.toFixed(0)} %</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(finalIncomeTax)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(data.real?.excl ?? 0)}</td>
+            <td class="p-2 whitespace-nowrap text-right">${fmt(data.real?.incl ?? 0)}</td>`;
+          return tr;
+        }catch(e){
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td colspan="15" class="p-3 text-center text-red-500 whitespace-nowrap">API 오류: ${e.message}</td>`;
+          return tr;
+        }
+      });
+
+      const results = await Promise.all(tasks);
+      const valid = results.filter(Boolean);
+      if (!valid.length){
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td colspan="15" class="p-3 text-center text-gray-500 whitespace-nowrap">유효한 입력이 없습니다.</td>`;
+        EL.multiResults.appendChild(tr);
+      } else {
+        valid.forEach(tr=>EL.multiResults.appendChild(tr));
+      }
+      EL.statusMulti.textContent = '계산 완료';
+    });
+
+    /* ===== Ver 모달 동작 ===== */
+    function openVerModal(){ EL.verModal.classList.remove('hidden'); EL.verModal.classList.add('flex'); document.body.classList.add('overflow-hidden'); }
+    function closeVerModal(){ EL.verModal.classList.add('hidden'); EL.verModal.classList.remove('flex'); document.body.classList.remove('overflow-hidden'); }
+    EL.verBtn.addEventListener('click', async ()=>{
+      openVerModal();
+      // 서버에서 상·하한/면세 기준을 가져와 라벨 갱신
+      try {
+        const r = await fetch(API_BASE + '/meta');
+        if (r.ok) {
+          const m = await r.json();
+          document.getElementById('np_min_label').textContent = fmt(m.ranges?.np?.min ?? 0);
+          document.getElementById('np_max_label').textContent = fmt(m.ranges?.np?.max ?? 0);
+          document.getElementById('hi_min_label').textContent = fmt(m.ranges?.hi?.min ?? 0);
+          document.getElementById('hi_max_label').textContent = fmt(m.ranges?.hi?.max ?? 0);
+          document.getElementById('tax_zero_label').textContent = fmt(m.taxZeroMonthly ?? 0);
+        }
+      } catch {}
+    });
+    EL.verClose.addEventListener('click', closeVerModal);
+    EL.verOk.addEventListener('click', closeVerModal);
+    EL.verModal.addEventListener('click', (e)=>{ const dialog=EL.verModal.querySelector('[role="dialog"]'); if(!dialog.contains(e.target)) closeVerModal(); });
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeVerModal(); });
+
+    /* ===== 엑셀 내보내기(단일) - 서버 응답 사용 ===== */
+    EL.exportSingleBtn.addEventListener('click', ()=>{
+      if(!lastServerResult) return;
       const now = new Date();
       const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
 
-      const combinedRate = calcCombinedRateFractionSingle();
-      const savingExcl = Math.round(lastResult.total_burden_excl * combinedRate);
-      const savingIncl = Math.round(lastResult.total_burden_incl * combinedRate);
-      const realExcl  = Math.round(lastResult.total_burden_excl * (1 - combinedRate));
-      const realIncl  = Math.round(lastResult.total_burden_incl * (1 - combinedRate));
-
-      // 시트1: 월/요약
       const sheet1 = [
-        ['입력 기준', inputMode==='net' ? '실수령' : '지급총액'],
-        ['대표자 합계세율(%)', (combinedRate*100).toFixed(2)],
+        ['입력 기준', lastInputMode==='net' ? '실수령' : '지급총액'],
+        ['대표자 세율(%)', lastOwnerRatePct],
         [],
-        ['실수령액', lastResult.net],
-        ['비과세(월)', lastResult.nonTax],
-        ['지급총액', lastResult.gross],
-        ['공제합계(근로자)', lastResult.total],
+        ['실수령액', lastServerResult.net],
+        ['비과세(월)', lastServerResult.nonTax],
+        ['지급총액', lastServerResult.gross],
+        ['공제합계(근로자)', lastServerResult.total],
         [],
-        ['연봉(퇴직금 제외)', lastResult.annual_excl],
-        ['연봉(퇴직금 포함)', lastResult.annual_incl],
+        ['연봉(퇴직금 제외)', Math.round(lastServerResult.gross*12)],
+        ['연봉(퇴직금 포함)', Math.round(lastServerResult.gross*13)],
         [],
-        ['총부담(퇴직금 제외)', lastResult.total_burden_excl],
-        ['총부담(퇴직금 포함)', lastResult.total_burden_incl],
-        ['실부담(퇴직금 제외)', realExcl],
-        ['실부담(퇴직금 포함)', realIncl],
-        ['절세액(제외)', savingExcl],
-        ['절세액(포함)', savingIncl],
+        ['총부담(퇴직금 제외)', lastServerResult.total_burden_excl],
+        ['총부담(퇴직금 포함)', lastServerResult.total_burden_incl],
+        ['실부담(퇴직금 제외)', lastServerReal?.excl ?? 0],
+        ['실부담(퇴직금 포함)', lastServerReal?.incl ?? 0],
+        ['절세액(제외)', lastServerReal?.savingExcl ?? 0],
+        ['절세액(포함)', lastServerReal?.savingIncl ?? 0],
         [],
-        ['4대보험(근로자+사업주)', lastResult.social_total],
-        ['원천세(소득세+지방세)', lastResult.withholding_total],
-        ['부대비용 총액(퇴직금 제외)', lastResult.overhead_excl],
-        ['퇴직금(월지급총액의 1/12)', lastResult.gratuity],
-        ['부대비용 총액(퇴직금 포함)', lastResult.overhead_incl],
+        ['4대보험(근로자+사업주)', lastServerResult.social_total],
+        ['원천세(소득세+지방세)', lastServerResult.withholding_total],
+        ['부대비용 총액(퇴직금 제외)', lastServerResult.overhead_excl],
+        ['퇴직금(월지급총액의 1/12)', lastServerResult.gratuity],
+        ['부대비용 총액(퇴직금 포함)', lastServerResult.overhead_incl],
       ];
 
-      // 시트2: 공제 상세
       const sheet2 = [
         ['구분','금액'],
-        ['국민연금(근로자)', lastResult.np],
-        ['건강보험(근로자)', lastResult.hi],
-        ['장기요양(근로자)', lastResult.ltc],
-        ['고용보험(근로자)', lastResult.ei],
-        ['소득세', lastResult.tax],
-        ['지방소득세', lastResult.ltax],
+        ['국민연금(근로자)', lastServerResult.np],
+        ['건강보험(근로자)', lastServerResult.hi],
+        ['장기요양(근로자)', lastServerResult.ltc],
+        ['고용보험(근로자)', lastServerResult.ei],
+        ['소득세', lastServerResult.tax],
+        ['지방소득세', lastServerResult.ltax],
         [],
-        ['국민연금(사업주)', lastResult.np_er],
-        ['건강보험(사업주)', lastResult.hi_er],
-        ['장기요양(사업주)', lastResult.ltc_er],
-        ['고용보험(사업주)', lastResult.ei_er],
-        ['산재보험(사업주)', lastResult.wci_er],
-        ['4대보험 사업주 부담 합계', lastResult.er_total],
+        ['국민연금(사업주)', lastServerResult.np_er],
+        ['건강보험(사업주)', lastServerResult.hi_er],
+        ['장기요양(사업주)', lastServerResult.ltc_er],
+        ['고용보험(사업주)', lastServerResult.ei_er],
+        ['산재보험(사업주)', lastServerResult.wci_er],
+        ['4대보험 사업주 부담 합계', lastServerResult.er_total],
         [],
-        ['보수월액(비과세 제외)', lastResult.baseIns],
-        ['국민연금 기준소득(천원단위)', lastResult.baseNP],
-        ['건강보험 산정기준', lastResult.baseHI],
-        ['고용보험 산정기준', lastResult.baseEI],
-        ['간이세액표 기준금액', lastResult.baseTax],
+        ['보수월액(비과세 제외)', lastServerResult.baseIns],
+        ['국민연금 기준소득(천원단위)', lastServerResult.baseNP],
+        ['건강보험 산정기준', lastServerResult.baseHI],
+        ['고용보험 산정기준', lastServerResult.baseEI],
+        ['간이세액표 기준금액', lastServerResult.baseTax],
       ];
 
-      // 시트3: 연간표 (현재 화면에 보이는 모드 – 요약/전체 반영)
+      // 연간표: 화면에 보이는 내용 그대로 수집
       const tableRows = Array.from(EL.annualBody.querySelectorAll('tr'));
       const sheet3 = [['구분','금액']];
       tableRows.forEach(tr=>{
@@ -1101,28 +933,22 @@
       });
 
       const wb = XLSX.utils.book_new();
-      const ws1 = XLSX.utils.aoa_to_sheet(sheet1);
-      const ws2 = XLSX.utils.aoa_to_sheet(sheet2);
-      const ws3 = XLSX.utils.aoa_to_sheet(sheet3);
-      XLSX.utils.book_append_sheet(wb, ws1, '요약(단일)');
-      XLSX.utils.book_append_sheet(wb, ws2, '공제상세');
-      XLSX.utils.book_append_sheet(wb, ws3, '연간내역');
-
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sheet1), '요약(단일)');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sheet2), '공제상세');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sheet3), '연간내역');
       XLSX.writeFile(wb, `네트급여_단일_${y}${m}${d}.xlsx`);
-    }
-    EL.exportSingleBtn.addEventListener('click', exportSingleToExcel);
+    });
 
-    /* ========== 엑셀 내보내기: 다중 결과표 ========== */
-    function exportMultiToExcel(){
+    /* ===== 다중 엑셀 내보내기: 표 그대로 ===== */
+    EL.exportMultiBtn.addEventListener('click', ()=>{
       const rows = Array.from(EL.multiResults.querySelectorAll('tr'));
-      if(!rows.length || rows[0].querySelector('td[colspan]')){ // '유효한 입력이 없습니다.' 행
+      if(!rows.length || rows[0].querySelector('td[colspan]')){
         alert('내보낼 다중 결과가 없습니다. 먼저 "다중 계산"을 눌러주세요.');
         return;
       }
       const now = new Date();
       const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
 
-      // 헤더 텍스트 수집
       const headerCells = Array.from(document.querySelector('#content_multi thead tr').children);
       const headers = headerCells.map(th => th.innerText.replace(/\s+/g,' ').trim());
 
@@ -1130,7 +956,6 @@
       rows.forEach(tr=>{
         const tds = Array.from(tr.children);
         const row = tds.map(td=>{
-          // 셀 안의 숫자만 추출 (원/퍼센트 제거)
           const txt = td.innerText.trim();
           if (txt.endsWith('%')) return Number(txt.replace(/[^\d.\-]/g,'')) || txt;
           const num = Number(txt.replace(/[^\d\-]/g,''));
@@ -1140,21 +965,15 @@
       });
 
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(data);
-      XLSX.utils.book_append_sheet(wb, ws, '다중결과');
-
-      // 보조 시트: 설정값
-      const combinedRate = calcCombinedRateFraction();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(data), '다중결과');
       const meta = [
         ['입력 기준', inputMode==='net' ? '실수령' : '지급총액'],
-        ['대표자 합계세율(%)', (combinedRate*100).toFixed(2)],
+        ['대표자 세율(%)', parseOwnerRatePct()],
         ['행 개수', rows.length]
       ];
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(meta), '메타');
-
       XLSX.writeFile(wb, `네트급여_다중_${y}${m}${d}.xlsx`);
-    }
-    EL.exportMultiBtn.addEventListener('click', exportMultiToExcel);
+    });
   </script>
 </body>
 </html>
