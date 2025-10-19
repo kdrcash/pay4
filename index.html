@@ -403,7 +403,7 @@
     async function callCalcAPI(payload) {
       const res = await fetch(API_BASE + "/calc", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error("API 오류: " + res.status);
